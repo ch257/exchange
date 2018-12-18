@@ -1,0 +1,5 @@
+# Add any directories, files, or patterns you don't want to be tracked by version control
+_git.vbs
+scripts/modules_py/__pycache__/
+bin/
+data/output/
