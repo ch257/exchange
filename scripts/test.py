@@ -1,3 +1,6 @@
 # -*- coding: utf-8 -*
-from modules.Errors import *
-print('Hello!')
+
+from modules.Main import *
+
+m = Main()
+m.main()
