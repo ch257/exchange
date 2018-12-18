@@ -7,7 +7,9 @@ class Errors:
 	
 	def raise_error(self, description):
 		self.error_occured = True
+		self.errors.append(description)
 
 	def print_errors(self):
-		print('Error!')
+		for error in self.errors:
+			print(error)
 		
