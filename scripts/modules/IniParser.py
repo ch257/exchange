@@ -7,6 +7,16 @@ class IniParser:
 		self.errors = errors
 		self.settiings = {}
 	
+	def exlude_non_data(self, line):
+		line = line.rstrip('\n')
+		line = line.rstrip('\r')
+		start_comment_pos = line.find(';')
+		if start_comment_pos > -1:
+			line = line[0:start_comment_pos]
+		line = line.replace('\t', '')
+		line = line.replace(' ', '')
+		return line
+		
 	def read_ini(self, ini_file_path, encoding):
 		if self.errors.error_occured:
 			return self.settiings
@@ -16,6 +26,8 @@ class IniParser:
 		while not self.errors.error_occured:
 			line = ini_file.read_line()
 			if line:
+				line = self.exlude_non_data(line)
+				
 				print(line)
 			else:
 				break
