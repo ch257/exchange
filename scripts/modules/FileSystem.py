@@ -1,0 +1,6 @@
+# -*- coding: utf-8 -*
+
+
+class FileSystem:
+	def __init__(self, errors):
+		self.errors = errors

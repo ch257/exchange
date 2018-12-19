@@ -11,5 +11,5 @@ class Errors:
 
 	def print_errors(self):
 		for error in self.errors:
-			print(error)
+			print('Error: ' + error)
 		
