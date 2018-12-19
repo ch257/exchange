@@ -17,3 +17,6 @@ class Files:
 		if self.handler:
 			self.handler.close()
 			self.handler = None
+	
+	def read_line(self):
+		return self.handler.readline()
