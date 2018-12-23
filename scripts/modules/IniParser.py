@@ -5,7 +5,7 @@ from modules.Files import *
 class IniParser:
 	def __init__(self, errors):
 		self.errors = errors
-		self.settiings = {}
+		self.settings = {}
 	
 	def exlude_non_data(self, line):
 		line = line.rstrip('\n')
@@ -22,7 +22,7 @@ class IniParser:
 		param = None
 		value = None
 		if line[0:1] == '[' and line[-1:] == ']':
-			section = line
+			section = line[1:-1]
 		else:
 			eq_smb = line.find('=')
 			param = line[0:eq_smb]
@@ -35,13 +35,40 @@ class IniParser:
 		
 		ini_file = Files(self.errors)
 		ini_file.open_file(ini_file_path, 'r', encoding)
+		last_section = None
 		while not self.errors.error_occured:
 			line = ini_file.read_line()
 			if line:
 				line = self.exlude_non_data(line)
 				section, param, value = self.parse_line(line)
-				print(section, param, value)
+				if section:
+					self.settings[section] = {}
+					last_section = section
+				if last_section  and param:
+					self.settings[last_section][param] = value
+				
 			else:
 				break
 		ini_file.close_file()
-		return self.settiings
+		self.settings['ini_file_path'] = ini_file_path
+		return self.settings
+		
+	def get_param(self, section, param, c_type = 'str'):
+		if self.errors.error_occured:
+			return None
+			
+		if self.settings.get(section):
+			if param:
+				if self.settings[section].get(param):
+					if c_type == 'int':
+						return int(self.settings[section][param])
+					elif c_type == 'float':
+						return float(self.settings[section][param])
+					else:
+						return self.settings[section][param]
+				else:
+					self.errors.raise_error('No parameter [' + section + '][' + param + '] in ini file ' + self.settings['ini_file_path'])
+			else:
+				return self.settings[section]
+		else:
+			self.errors.raise_error('No section [' + section + '] in ini file ' + self.settings['ini_file_path'])
