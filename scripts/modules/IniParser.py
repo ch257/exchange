@@ -62,7 +62,7 @@ class IniParser:
 				if self.settings[section].get(param):
 					if c_type == 'int':
 						return int(self.settings[section][param])
-					elif c_type == 'float':
+					elif c_type == 'num' or c_type == 'float':
 						return float(self.settings[section][param])
 					else:
 						return self.settings[section][param]
