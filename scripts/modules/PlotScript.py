@@ -31,6 +31,7 @@ class PlotScript:
 		self.settings['input']['input_feed_format'] = self.ini_parser.get_param('input', 'input_feed_format')
 		
 		self.settings['output'] = {}
+		self.settings['output']['folder'] = self.ini_parser.get_param('output', 'folder')
 		
 		input_feed_format = self.settings['input']['input_feed_format']
 		self.settings[input_feed_format] = {}
