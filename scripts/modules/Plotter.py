@@ -29,16 +29,16 @@ class Plotter:
 		self.settings['input'] = {}
 		self.settings['input']['file_path'] = self.ini_parser.get_param('input', 'file_path')
 		self.settings['input']['input_feed_format'] = self.ini_parser.get_param('input', 'input_feed_format')
-		self.settings['input']['skip_first_lines_number'] = self.ini_parser.get_param('input', 'skip_first_lines_number', 'int')
 		
 		self.settings['output'] = {}
 		
 		input_feed_format = self.settings['input']['input_feed_format']
 		self.settings[input_feed_format] = {}
 		self.settings[input_feed_format]['encoding'] = self.ini_parser.get_param(input_feed_format, 'encoding')
-		self.settings[input_feed_format]['column_names'] = tools.explode(',', self.ini_parser.get_param(input_feed_format, 'column_names'))
+		self.settings[input_feed_format]['skip_first_lines_number'] = self.ini_parser.get_param(input_feed_format, 'skip_first_lines_number', 'int')
+		self.settings[input_feed_format]['columns'] = tools.explode(',', self.ini_parser.get_param(input_feed_format, 'columns'))
 		self.settings[input_feed_format]['column_separator'] = tools.escape_sequence(self.ini_parser.get_param(input_feed_format, 'column_separator'))
-		self.settings[input_feed_format]['column_data_type'] = tools.explode(',', self.ini_parser.get_param(input_feed_format, 'column_data_type'))
+		self.settings[input_feed_format]['column_data_types'] = tools.explode(',', self.ini_parser.get_param(input_feed_format, 'column_data_types'))
 		
 	def main(self, args):
 		self.set_params(args)
