@@ -39,7 +39,7 @@ class DataStream:
 		if self.errors.error_occured:
 			return {}
 		
-		skip_first_lines_number = feed_format['skip_first_lines_number']
+		skip_first_lines_number = feed_format['header_lines_number']
 		columns = feed_format['columns']
 		column_separator = feed_format['column_separator']
 		column_data_types = feed_format['column_data_types']
