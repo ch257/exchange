@@ -5,7 +5,7 @@ from modules.IniParser import *
 from modules.Tools import *
 from modules.DataStream import *
 
-class Plotter:
+class PlotScript:
 	def __init__(self):
 		self.errors = Errors()
 		self.ini_encoding = 'utf-8'
@@ -40,6 +40,13 @@ class Plotter:
 		self.settings[input_feed_format]['column_separator'] = tools.escape_sequence(self.ini_parser.get_param(input_feed_format, 'column_separator'))
 		self.settings[input_feed_format]['column_data_types'] = tools.explode(',', self.ini_parser.get_param(input_feed_format, 'column_data_types'))
 		
+		#check some params
+		columns_number = str(len(self.settings[input_feed_format]['columns']))
+		column_data_types_number = str(len(self.settings[input_feed_format]['column_data_types']))
+		if columns_number != column_data_types_number:
+			self.errors.raise_error('columns number(' + columns_number + ') is not equal column_data_types number(' +  column_data_types_number+ ')')
+			
+	
 	def main(self, args):
 		self.set_params(args)
 		data_stream = DataStream(self.errors)

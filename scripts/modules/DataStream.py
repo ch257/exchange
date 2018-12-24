@@ -32,10 +32,8 @@ class DataStream:
 		return value
 	
 	def type_record(self, rec, columns, types):
-		col_cnt = 0
-		for col in columns:
-			rec[col] = self.type_value(rec[col], types[col_cnt])
-			col_cnt += 1
+		for col_cnt in range(len(rec)):
+			rec[columns[col_cnt]] = self.type_value(rec[columns[col_cnt]], types[col_cnt])
 	
 	def read_all(self, feed_format):
 		if self.errors.error_occured:
@@ -60,8 +58,8 @@ class DataStream:
 				line = line.rstrip('\n')
 				rec = self.tools.line_to_record(column_separator, line, columns)
 				self.type_record(rec, columns, column_data_types)
-				for col in columns:
-					data[col].append(rec[col])
+				for col_cnt in range(len(rec)):
+					data[columns[col_cnt]].append(rec[columns[col_cnt]])
 			else:
 				break
 		return data

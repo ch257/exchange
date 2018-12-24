@@ -3,7 +3,7 @@
 from modules.Errors import *
 from modules.IniParser import *
 
-class ClassTemplate:
+class TemplateClass:
 	def __init__(self):
 		self.errors = Errors()
 		self.ini_encoding = 'utf-8'

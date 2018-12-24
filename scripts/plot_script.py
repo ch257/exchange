@@ -5,7 +5,7 @@ import sys
 
 script_file_folder = (re.match(".*\\\\", sys.argv[0])).group(0)
 
-from modules.ClassTemplate import *
+from modules.PlotScript import *
 
-ct = ClassTemplate()
-ct.main(sys.argv)
+plot_script = PlotScript()
+plot_script.main(sys.argv)

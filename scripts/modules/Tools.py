@@ -20,9 +20,13 @@ class Tools:
 	def line_to_record(self, div, line, keys):
 		rec = {}
 		arr = self.explode(div, line)
-		n = min([len(arr), len(keys)])
-		for i in range(n):
-			rec[keys[i]] = arr[i]
+		if len(arr) < len(keys):
+			for i in range(len(arr)):
+				rec[keys[i]] = arr[i]
+			self.errors.raise_error('not enough columns in line')
+		else:
+			for i in range(len(keys)):
+				rec[keys[i]] = arr[i]
 		return rec
 	
 	def record_to_line(self, div, rec, keys):
