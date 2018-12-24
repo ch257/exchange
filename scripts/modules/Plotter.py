@@ -3,6 +3,7 @@
 from modules.Errors import *
 from modules.IniParser import *
 from modules.Tools import *
+from modules.DataStream import *
 
 class Plotter:
 	def __init__(self):
@@ -34,14 +35,21 @@ class Plotter:
 		
 		input_feed_format = self.settings['input']['input_feed_format']
 		self.settings[input_feed_format] = {}
+		self.settings[input_feed_format]['encoding'] = self.ini_parser.get_param(input_feed_format, 'encoding')
 		self.settings[input_feed_format]['column_names'] = tools.explode(',', self.ini_parser.get_param(input_feed_format, 'column_names'))
 		self.settings[input_feed_format]['column_separator'] = tools.escape_sequence(self.ini_parser.get_param(input_feed_format, 'column_separator'))
 		self.settings[input_feed_format]['column_data_type'] = tools.explode(',', self.ini_parser.get_param(input_feed_format, 'column_data_type'))
 		
 	def main(self, args):
 		self.set_params(args)
+		data_stream = DataStream(self.errors)
+		input_file_path = self.settings['input']['file_path']
+		input_feed_format = self.settings[self.settings['input']['input_feed_format']]
+		data_stream.open_stream(input_file_path, input_feed_format)
+		data = data_stream.read_all(input_feed_format)
+		data_stream.close_stream()
 		
-		print(self.settings)
+		print(data)
 		
 		if self.errors.error_occured:
 			self.errors.print_errors()
