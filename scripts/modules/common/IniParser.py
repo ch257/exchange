@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*
 
-from modules.Files import *
+from modules.common.Files import *
 
 class IniParser:
 	def __init__(self, errors):

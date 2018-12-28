@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*
 
-from modules.Errors import *
-from modules.IniParser import *
-from modules.Tools import *
-from modules.DataStream import *
+from modules.common.Errors import *
+from modules.common.IniParser import *
+from modules.common.Tools import *
+from modules.common.DataStream import *
 
 class PlotScript:
 	def __init__(self):

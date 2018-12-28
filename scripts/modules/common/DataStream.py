@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*
 
-from modules.Files import *
-from modules.Tools import *
+from modules.common.Files import *
+from modules.common.Tools import *
 
 class DataStream:
 	

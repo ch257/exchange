@@ -5,7 +5,7 @@ import sys
 
 script_file_folder = (re.match(".*\\\\", sys.argv[0])).group(0)
 
-from modules.TemplateClass import *
+from modules.Template import *
 
-template_script = TemplateClass()
-template_script.main(sys.argv)
+template = Template()
+template.main(sys.argv)

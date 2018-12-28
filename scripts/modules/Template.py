@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*
 
-from modules.Errors import *
-from modules.IniParser import *
+from modules.common.Errors import *
+from modules.common.IniParser import *
 
-class TemplateClass:
+class Template:
 	def __init__(self):
 		self.errors = Errors()
 		self.ini_encoding = 'utf-8'
