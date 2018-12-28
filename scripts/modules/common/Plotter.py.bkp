@@ -1,0 +1,127 @@
+# -*- coding: utf-8 -*
+
+import numpy as np
+import matplotlib.pyplot as plt
+# import matplotlib.dates as mdates
+# import matplotlib.ticker as mticker
+# from matplotlib.finance import candlestick_ohlc
+# from matplotlib import style
+
+# import numpy as np
+# import datetime as dt
+
+class Plotter:
+	def __init__(self, errors, ini, tools):
+		self.errors = errors
+		#----------- [plot] params ---------------
+		self.output_data_folder = ini.set_param('plotter', 'output_data_folder', None)
+		self.subplots_number = ini.set_param('plotter', 'subplots_number', 'int')
+		self.series_keys = tools.explode(',', ini.set_param('plotter', 'series_keys', None))
+		# self.series = tools.explode(',', ini.set_param('plotter', 'series', None))
+		self.subplot_height_share = tools.int_arr(tools.explode(',', ini.set_param('plotter', 'subplot_height_share', None)))
+		self.series_subplot = tools.int_arr(tools.explode(',', ini.set_param('plotter', 'series_subplot', None)))
+		self.series_plot_types = tools.explode(',', ini.set_param('plotter', 'series_plot_types', None))
+		self.series_plot_colors = tools.explode(',', ini.set_param('plotter', 'series_plot_colors', None))
+		self.series_plot_width = tools.float_arr(tools.explode(',', ini.set_param('plotter', 'series_plot_width', None)))
+		self.series_plot_alpha = tools.float_arr(tools.explode(',', ini.set_param('plotter', 'series_plot_alpha', None)))
+		self.x_label_keys = tools.explode(',', ini.set_param('plotter', 'x_label_keys', None))
+		self.x_label_data_types = tools.explode(',', ini.set_param('plotter', 'x_label_data_types', None))
+		# self.x_ticks = ini.set_param('plotter', 'x_ticks', None)
+		# self.x_ticks_labels = tools.explode(',', ini.set_param('plotter', 'x_ticks_labels', None))
+		self.x_ticks_step = ini.set_param('plotter', 'x_ticks_step', 'int')
+		self.y_ticks_step = tools.float_arr(tools.explode(',', ini.set_param('plotter', 'y_ticks_step', None)))
+		
+		
+	def plot_series(self, series, d_index):
+		if self.errors.critical_error_occured:
+			return False
+		
+		# print(series)
+		
+		fig = plt.figure(figsize = (16, 9))
+		
+		offset = 0
+		ax = []
+		for i in range(self.subplots_number):
+			if i == 0:
+				ax.append(plt.subplot2grid((sum(self.subplot_height_share) , 1),(offset , 0), rowspan = self.subplot_height_share[i]))
+				ax[i].set_title(str(d_index))
+			else:
+				ax.append(plt.subplot2grid((sum(self.subplot_height_share) , 1),(offset , 0), rowspan = self.subplot_height_share[i], sharex = ax[0]))
+			
+			ax[i].grid(which = 'minor', alpha = 0.4)                                      
+			ax[i].grid(which = 'major', alpha = 1)
+			
+			major_x_ticks = np.arange(0, len(series[self.x_label_keys[0]]), self.x_ticks_step)
+			# major_x_ticks = [10, 100] #np.array([10, 100])
+			minor_x_ticks = np.arange(0, len(series[self.x_label_keys[0]]), 1)
+			
+			print(type(major_x_ticks))
+			print(minor_x_ticks)
+			
+			ax[i].set_xticks(major_x_ticks)
+			ax[i].set_xticks(minor_x_ticks, minor = True)
+			
+			mx = None
+			mn = None
+			for j in range(len(self.series_subplot)):
+				if i == self.series_subplot[j] - 1:
+					seria = np.array(series[self.series_keys[j]]).astype(np.double)
+					s_mask = np.isfinite(seria)
+					# print(seria)
+					# print('-------------')
+					# print(seria[s_mask])
+					# print('===================')
+					ax[self.series_subplot[j] - 1].plot(minor_x_ticks[s_mask], seria[s_mask], 
+						self.series_plot_types[j], 
+						color = self.series_plot_colors[j],
+						linewidth = self.series_plot_width[j],
+						alpha = self.series_plot_alpha[j])
+					
+					ex = max(item for item in series[self.series_keys[j]] if item is not None)	
+					if mx is not None:
+						if mx < ex:
+							mx = ex
+					else:
+						mx = ex
+					
+					ex = min(item for item in series[self.series_keys[j]] if item is not None)
+					if mn is not None:
+						if mn > ex:
+							mn = ex
+					else:
+						mn = ex
+			
+			if mx is not None and mn is not None:	
+				top_y_lim = (mx // self.y_ticks_step[i] + 1) * self.y_ticks_step[i]
+				bottom_y_lim = (mn // self.y_ticks_step[i]) * self.y_ticks_step[i]
+				
+				y_ticks = np.arange(bottom_y_lim, top_y_lim, self.y_ticks_step[i])
+				## y_ticks = np.arange(bottom_y_lim - self.y_ticks_step[i], top_y_lim + self.y_ticks_step[i], self.y_ticks_step[i])
+				
+				ax[i].set_yticks(y_ticks)
+				## plt.ylim(bottom_y_lim - self.y_ticks_step[i], top_y_lim + self.y_ticks_step[i])
+				
+			plt.setp(ax[i].get_xticklabels(), visible = False)
+			offset = offset + self.subplot_height_share[i]
+			
+		# print(series['<DATE>'])
+		# print(series['<TIME>'])
+		
+		major_ticks_labels = []
+		for cnt in major_x_ticks:
+			tick_label = ''
+			for key in self.x_label_keys:
+				tick_label = tick_label + '\n' + series[key][cnt]
+			major_ticks_labels.append(tick_label[1:])
+
+		ax[i].set_xticklabels(major_ticks_labels)
+		# ax[i].set_xticklabels(minor_ticks_labels, minor=True)
+
+		plt.setp(ax[i].get_xticklabels(), visible = True)
+		# plt.show()
+		
+		plt.tight_layout()
+		plt.savefig(self.output_data_folder + 'plot' + str(d_index) + '.png', dpi = 100)
+		plt.close()
+		

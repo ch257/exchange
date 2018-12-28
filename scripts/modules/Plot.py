@@ -4,6 +4,7 @@ from modules.common.Errors import *
 from modules.common.IniParser import *
 from modules.common.Tools import *
 from modules.common.DataStream import *
+from modules.common.Plotter import *
 
 class Plot:
 	def __init__(self):
@@ -41,6 +42,13 @@ class Plot:
 		self.settings[input_feed_format]['column_separator'] = tools.escape_sequence(self.ini_parser.get_param(input_feed_format, 'column_separator'))
 		self.settings[input_feed_format]['column_data_types'] = tools.explode(',', self.ini_parser.get_param(input_feed_format, 'column_data_types'))
 		
+		self.settings['plotter'] = {}
+		self.settings['plotter']['series'] = self.ini_parser.get_param('plotter', 'series')
+		self.settings['plotter']['series'] = tools.explode(',', self.settings['plotter']['series']) 
+		self.settings['plotter']['subplot_height_share'] = self.ini_parser.get_param('plotter', 'subplot_height_share')
+		self.settings['plotter']['subplot_height_share'] = tools.explode(',', self.settings['plotter']['subplot_height_share'])
+		self.settings['plotter']['subplots_number'] = self.ini_parser.get_param('plotter', 'subplots_number') 
+		
 		#check some params
 		columns_number = str(len(self.settings[input_feed_format]['columns']))
 		column_data_types_number = str(len(self.settings[input_feed_format]['column_data_types']))
@@ -57,7 +65,10 @@ class Plot:
 		data = data_stream.read_all(input_feed_format)
 		data_stream.close_stream()
 		
-		print(data)
+		plotter = Plotter(self.errors)
+		plotter.plot_series(data, self.settings)
+		
+		# print(data)
 		
 		if self.errors.error_occured:
 			self.errors.print_errors()
