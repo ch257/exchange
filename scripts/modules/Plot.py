@@ -5,7 +5,7 @@ from modules.common.IniParser import *
 from modules.common.Tools import *
 from modules.common.DataStream import *
 
-class PlotScript:
+class Plot:
 	def __init__(self):
 		self.errors = Errors()
 		self.ini_encoding = 'utf-8'
