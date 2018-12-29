@@ -47,13 +47,19 @@ class Plot:
 		self.settings['plotter']['series'] = tools.explode(',', self.ini_parser.get_param('plotter', 'series'))
 		self.settings['plotter']['subplot_height_share'] = tools.int_arr(tools.explode(',', self.ini_parser.get_param('plotter', 'subplot_height_share')))
 		self.settings['plotter']['subplots_number'] = self.ini_parser.get_param('plotter', 'subplots_number', 'int') 
+		self.settings['plotter']['seria_to_subbplot_binding'] = tools.int_arr(tools.explode(',', self.ini_parser.get_param('plotter', 'seria_to_subbplot_binding')))
 		
 		#check some params
-		columns_number = str(len(self.settings[input_feed_format]['columns']))
-		column_data_types_number = str(len(self.settings[input_feed_format]['column_data_types']))
+		columns_number = len(self.settings[input_feed_format]['columns'])
+		column_data_types_number = len(self.settings[input_feed_format]['column_data_types'])
 		if columns_number != column_data_types_number:
-			self.errors.raise_error('columns number(' + columns_number + ') is not equal column_data_types number(' +  column_data_types_number+ ')')
-			
+			self.errors.raise_error("['" + input_feed_format + "']['columns'] elements number(" + str(columns_number) + ") is not equal ['" + input_feed_format + "']['column_data_types'] elements number(" +  str(column_data_types_number) + ")")
+		
+		series_number = len(self.settings['plotter']['series'])
+		seria_to_subbplot_binding_number = len(self.settings['plotter']['seria_to_subbplot_binding'])
+		if series_number != seria_to_subbplot_binding_number:
+			self.errors.raise_error("['plotter']['series'] elements number(" + str(series_number) + ") is not equal ['plotter']['seria_to_subbplot_binding'] elements number(" +  str(seria_to_subbplot_binding_number) + ")")
+		
 	
 	def main(self, args):
 		self.set_params(args)

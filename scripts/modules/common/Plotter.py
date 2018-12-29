@@ -25,6 +25,9 @@ class Plotter:
 		
 		self.subplot_offset += subplot_height_share[subplot_index]
 		
+	def bind_seria_to_subplot(self, seria, subplot_index):
+		self.ax[subplot_index - 1].plot(seria)
+		
 	def plot_series(self, data, settings, fig_name):
 		if self.errors.error_occured:
 			return None
@@ -32,10 +35,16 @@ class Plotter:
 		fig_folder = settings['plotter']['fig_folder']
 		series = settings['plotter']['series']
 		subplots_number = settings['plotter']['subplots_number']
-		subplot_height_share = settings['plotter']['subplot_height_share'] 
+		subplot_height_share = settings['plotter']['subplot_height_share']
+		seria_to_subbplot_binding = settings['plotter']['seria_to_subbplot_binding']
 		
 		for subplot_index in range(subplots_number):
 			self.create_subplot(subplot_index, subplots_number, subplot_height_share)
+		
+		for seria_index in range(len(series)):
+			seria = data[series[seria_index]]
+			subplot_index = seria_to_subbplot_binding[seria_index]
+			self.bind_seria_to_subplot(seria, subplot_index)
 			
 		plt.tight_layout()
 		plt.savefig(fig_folder + 'fig' + fig_name + '.png', dpi = 100)
