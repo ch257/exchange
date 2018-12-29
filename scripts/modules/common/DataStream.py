@@ -19,16 +19,19 @@ class DataStream:
 		self.file_handler.open_file(file_path, 'r', encoding)
 		
 	def type_value(self, value, type):
-		if type == 'num':
-			return float(value)
-		elif type == 'int':
-			return int(value)
-		elif type == 'float':
-			return float(value)
-		elif type == 'yyyymmdd':
-			return value
-		elif type == 'hhmmss':
-			return value
+		if value:
+			if type == 'num':
+				return float(value)
+			elif type == 'int':
+				return int(value)
+			elif type == 'float':
+				return float(value)
+			elif type == 'yyyymmdd':
+				return value
+			elif type == 'hhmmss':
+				return value
+		else:
+			value = None
 		return value
 	
 	def type_record(self, rec, columns, types):
