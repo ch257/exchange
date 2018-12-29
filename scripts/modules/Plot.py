@@ -43,11 +43,10 @@ class Plot:
 		self.settings[input_feed_format]['column_data_types'] = tools.explode(',', self.ini_parser.get_param(input_feed_format, 'column_data_types'))
 		
 		self.settings['plotter'] = {}
-		self.settings['plotter']['series'] = self.ini_parser.get_param('plotter', 'series')
-		self.settings['plotter']['series'] = tools.explode(',', self.settings['plotter']['series']) 
-		self.settings['plotter']['subplot_height_share'] = self.ini_parser.get_param('plotter', 'subplot_height_share')
-		self.settings['plotter']['subplot_height_share'] = tools.explode(',', self.settings['plotter']['subplot_height_share'])
-		self.settings['plotter']['subplots_number'] = self.ini_parser.get_param('plotter', 'subplots_number') 
+		self.settings['plotter']['fig_folder'] = self.settings['output']['folder'] + self.ini_parser.get_param('plotter', 'fig_folder')
+		self.settings['plotter']['series'] = tools.explode(',', self.ini_parser.get_param('plotter', 'series'))
+		self.settings['plotter']['subplot_height_share'] = tools.int_arr(tools.explode(',', self.ini_parser.get_param('plotter', 'subplot_height_share')))
+		self.settings['plotter']['subplots_number'] = self.ini_parser.get_param('plotter', 'subplots_number', 'int') 
 		
 		#check some params
 		columns_number = str(len(self.settings[input_feed_format]['columns']))
@@ -65,8 +64,9 @@ class Plot:
 		data = data_stream.read_all(input_feed_format)
 		data_stream.close_stream()
 		
+		fig_name = '0000'
 		plotter = Plotter(self.errors)
-		plotter.plot_series(data, self.settings)
+		plotter.plot_series(data, self.settings, fig_name)
 		
 		# print(data)
 		
