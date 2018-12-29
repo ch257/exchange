@@ -26,7 +26,7 @@ class Plotter:
 		self.subplot_offset += subplot_height_share[subplot_index]
 		
 	def bind_seria_to_subplot(self, seria, subplot_index):
-		self.ax[subplot_index - 1].plot(seria)
+		self.ax[subplot_index].plot(seria)
 		
 	def plot_series(self, data, settings, fig_name):
 		if self.errors.error_occured:
@@ -43,7 +43,7 @@ class Plotter:
 		
 		for seria_index in range(len(series)):
 			seria = data[series[seria_index]]
-			subplot_index = seria_to_subbplot_binding[seria_index]
+			subplot_index = seria_to_subbplot_binding[seria_index] - 1
 			self.bind_seria_to_subplot(seria, subplot_index)
 			
 		plt.tight_layout()

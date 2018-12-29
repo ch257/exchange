@@ -60,7 +60,6 @@ class Plot:
 		if series_number != seria_to_subbplot_binding_number:
 			self.errors.raise_error("['plotter']['series'] elements number(" + str(series_number) + ") is not equal ['plotter']['seria_to_subbplot_binding'] elements number(" +  str(seria_to_subbplot_binding_number) + ")")
 		
-	
 	def main(self, args):
 		self.set_params(args)
 		data_stream = DataStream(self.errors)
