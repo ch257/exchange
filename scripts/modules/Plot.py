@@ -64,14 +64,7 @@ class Plot:
 		self.settings['plotter']['series_color'] = tools.explode(',', self.ini_parser.get_param('plotter', 'series_color', error_ignoring = True, default_param_value = series_color))
 		self.settings['plotter']['series_alpha'] = tools.float_arr(tools.explode(',', self.ini_parser.get_param('plotter', 'series_alpha', error_ignoring = True, default_param_value = series_alpha)))
 		
-		print(self.settings['plotter']['ignoring_missed_data_line'])
-		print(self.settings['plotter']['series_linewidth'])
-		print(self.settings['plotter']['series_markersize'])
-		print(self.settings['plotter']['series_color'])
-		print(self.settings['plotter']['series_alpha'])
-		
-		
-		#check some params
+		#check several params
 		def compare_elements_number(section1, param1, section2, param2):
 			if self.errors.error_occured:
 				return None
