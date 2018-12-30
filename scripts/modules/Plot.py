@@ -49,16 +49,41 @@ class Plot:
 		self.settings['plotter']['subplots_number'] = self.ini_parser.get_param('plotter', 'subplots_number', 'int') 
 		self.settings['plotter']['seria_to_subbplot_binding'] = tools.int_arr(tools.explode(',', self.ini_parser.get_param('plotter', 'seria_to_subbplot_binding')))
 		
-		#check some params
-		columns_number = len(self.settings[input_feed_format]['columns'])
-		column_data_types_number = len(self.settings[input_feed_format]['column_data_types'])
-		if columns_number != column_data_types_number:
-			self.errors.raise_error("['" + input_feed_format + "']['columns'] elements number(" + str(columns_number) + ") is not equal ['" + input_feed_format + "']['column_data_types'] elements number(" +  str(column_data_types_number) + ")")
+		def clone_value(value, number):
+			return number * [value]
 		
-		series_number = len(self.settings['plotter']['series'])
-		seria_to_subbplot_binding_number = len(self.settings['plotter']['seria_to_subbplot_binding'])
-		if series_number != seria_to_subbplot_binding_number:
-			self.errors.raise_error("['plotter']['series'] elements number(" + str(series_number) + ") is not equal ['plotter']['seria_to_subbplot_binding'] elements number(" +  str(seria_to_subbplot_binding_number) + ")")
+		ignoring_missed_data_line = tools.implode(',', clone_value(self.ini_parser.get_param('plotter_default', 'ignoring_missed_data_line'), len(self.settings['plotter']['series'])))
+		series_linewidth = tools.implode(',', clone_value(self.ini_parser.get_param('plotter_default', 'series_linewidth'), len(self.settings['plotter']['series'])))
+		series_markersize = tools.implode(',', clone_value(self.ini_parser.get_param('plotter_default', 'series_markersize'), len(self.settings['plotter']['series'])))
+		series_color = tools.implode(',', clone_value(self.ini_parser.get_param('plotter_default', 'series_color'), len(self.settings['plotter']['series'])))
+		series_alpha = tools.implode(',', clone_value(self.ini_parser.get_param('plotter_default', 'series_alpha'), len(self.settings['plotter']['series'])))
+		
+		self.settings['plotter']['ignoring_missed_data_line'] = tools.bool_arr(tools.explode(',', self.ini_parser.get_param('plotter', 'ignoring_missed_data_line', error_ignoring = True, default_param_value = ignoring_missed_data_line)))
+		self.settings['plotter']['series_linewidth'] = tools.int_arr(tools.explode(',', self.ini_parser.get_param('plotter', 'series_linewidth', error_ignoring = True, default_param_value = series_linewidth)))
+		self.settings['plotter']['series_markersize'] = tools.int_arr(tools.explode(',', self.ini_parser.get_param('plotter', 'series_markersize', error_ignoring = True, default_param_value = series_markersize)))
+		self.settings['plotter']['series_color'] = tools.explode(',', self.ini_parser.get_param('plotter', 'series_color', error_ignoring = True, default_param_value = series_color))
+		self.settings['plotter']['series_alpha'] = tools.float_arr(tools.explode(',', self.ini_parser.get_param('plotter', 'series_alpha', error_ignoring = True, default_param_value = series_alpha)))
+		
+		print(self.settings['plotter']['ignoring_missed_data_line'])
+		print(self.settings['plotter']['series_linewidth'])
+		print(self.settings['plotter']['series_markersize'])
+		print(self.settings['plotter']['series_color'])
+		print(self.settings['plotter']['series_alpha'])
+		
+		
+		#check some params
+		def compare_elements_number(section1, param1, section2, param2):
+			if self.errors.error_occured:
+				return None
+			elements_number1 = len(self.settings[section1][param1])
+			elements_number2 = len(self.settings[section2][param2])
+			if elements_number1 != elements_number2:
+				self.errors.raise_error('[' + section1 + '][' + param1 + '] elements number(' + str(elements_number1) + ') is not equal [' + section2 + '][' + param2 + '] elements number(' +  str(elements_number2) + ')')
+
+		compare_elements_number(input_feed_format, 'columns', input_feed_format, 'column_data_types')
+		compare_elements_number('plotter', 'series', 'plotter', 'seria_to_subbplot_binding')
+		
+	
 		
 	def main(self, args):
 		self.set_params(args)

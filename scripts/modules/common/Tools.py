@@ -68,6 +68,16 @@ class Tools:
 			cnt = cnt + 1
 		return arr
 		
+	def bool_arr(self, arr):
+		cnt = 0
+		for item in arr:
+			if arr[cnt] == '1':
+				arr[cnt] = True
+			else:
+				arr[cnt] = False
+			cnt = cnt + 1
+		return arr
+		
 	def format_number(self, zeros, number):
 		len_zeros = len(zeros)
 		str_number = str(number)

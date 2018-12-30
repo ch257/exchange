@@ -52,23 +52,36 @@ class IniParser:
 		ini_file.close_file()
 		self.settings['ini_file_path'] = ini_file_path
 		return self.settings
-		
-	def get_param(self, section, param, c_type = 'str'):
+	
+	def type_value(self, value, c_type):
+		if c_type == 'int':
+			return int(value)
+		elif c_type == 'num' or c_type == 'float':
+			return float(value)
+		elif c_type == 'bool':
+			if value == '1':
+				return True
+			else:
+				return False
+		else:
+			return value
+	
+	def get_param(self, section, param, c_type = 'str', error_ignoring = False, default_param_value = None):
 		if self.errors.error_occured:
 			return None
 			
 		if self.settings.get(section):
 			if param:
 				if self.settings[section].get(param):
-					if c_type == 'int':
-						return int(self.settings[section][param])
-					elif c_type == 'num' or c_type == 'float':
-						return float(self.settings[section][param])
-					else:
-						return self.settings[section][param]
+					return self.type_value(self.settings[section][param], c_type)
 				else:
-					self.errors.raise_error('No parameter [' + section + '][' + param + '] in ini file ' + self.settings['ini_file_path'])
+					if not error_ignoring:
+						self.errors.raise_error('No parameter [' + section + '][' + param + '] in ini file ' + self.settings['ini_file_path'])
+					else:
+						return self.type_value(default_param_value, c_type)
+					
 			else:
 				return self.settings[section]
 		else:
-			self.errors.raise_error('No section [' + section + '] in ini file ' + self.settings['ini_file_path'])
+			if not error_ignoring:
+				self.errors.raise_error('No section [' + section + '] in ini file ' + self.settings['ini_file_path'])
