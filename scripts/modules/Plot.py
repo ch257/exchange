@@ -44,6 +44,9 @@ class Plot:
 		
 		self.settings['plotter'] = {}
 		self.settings['plotter']['fig_folder'] = self.settings['output']['folder'] + self.ini_parser.get_param('plotter', 'fig_folder')
+		self.settings['plotter']['x_ticks_data_columns'] = tools.explode(',', self.ini_parser.get_param('plotter', 'x_ticks_data_columns'))
+		self.settings['plotter']['x_ticks'] = tools.explode(',', self.ini_parser.get_param('plotter', 'x_ticks'))
+		self.settings['plotter']['x_labels_format'] = tools.explode(',', self.ini_parser.get_param('plotter', 'x_labels_format'))
 		self.settings['plotter']['series'] = tools.explode(',', self.ini_parser.get_param('plotter', 'series'))
 		self.settings['plotter']['subplot_height_share'] = tools.int_arr(tools.explode(',', self.ini_parser.get_param('plotter', 'subplot_height_share')))
 		self.settings['plotter']['subplots_number'] = self.ini_parser.get_param('plotter', 'subplots_number', 'int') 
@@ -58,8 +61,6 @@ class Plot:
 		series_marker = tools.implode(',', clone_value(self.ini_parser.get_param('plotter_default', 'series_marker'), len(self.settings['plotter']['series'])))
 		series_color = tools.implode(',', clone_value(self.ini_parser.get_param('plotter_default', 'series_color'), len(self.settings['plotter']['series'])))
 		series_alpha = tools.implode(',', clone_value(self.ini_parser.get_param('plotter_default', 'series_alpha'), len(self.settings['plotter']['series'])))
-		# minor_x_labels = self.ini_parser.get_param('plotter_default', 'minor_x_labels')
-		# major_x_labels = self.ini_parser.get_param('plotter_default', 'major_x_labels')
 		
 		self.settings['plotter']['ignoring_missed_data_line'] = tools.bool_arr(tools.explode(',', self.ini_parser.get_param('plotter', 'ignoring_missed_data_line', error_ignoring = True, default_param_value = ignoring_missed_data_line)))
 		self.settings['plotter']['series_linewidth'] = tools.int_arr(tools.explode(',', self.ini_parser.get_param('plotter', 'series_linewidth', error_ignoring = True, default_param_value = series_linewidth)))
@@ -67,10 +68,19 @@ class Plot:
 		self.settings['plotter']['series_markersize'] = tools.int_arr(tools.explode(',', self.ini_parser.get_param('plotter', 'series_markersize', error_ignoring = True, default_param_value = series_markersize)))
 		self.settings['plotter']['series_color'] = tools.explode(',', self.ini_parser.get_param('plotter', 'series_color', error_ignoring = True, default_param_value = series_color))
 		self.settings['plotter']['series_alpha'] = tools.float_arr(tools.explode(',', self.ini_parser.get_param('plotter', 'series_alpha', error_ignoring = True, default_param_value = series_alpha)))
-		# self.settings['plotter']['minor_x_labels'] = self.ini_parser.get_param('plotter', 'minor_x_labels', error_ignoring = True, default_param_value = minor_x_labels)
-		# self.settings['plotter']['major_x_labels'] = self.ini_parser.get_param('plotter', 'major_x_labels', error_ignoring = True, default_param_value = major_x_labels)
 		
 		#check several params
+		def check_elements_number(section1, param1, section2, param2):
+			if self.errors.error_occured:
+				return None
+			elements_number1 = len(self.settings[section1][param1])
+			elements_number2 = self.settings[section2][param2]
+			
+			if elements_number1 != elements_number2:
+				self.errors.raise_error('[' + section1 + '][' + param1 + '] elements number(' + str(elements_number1) + ') is not equal [' + section2 + '][' + param2 + '] value(' +  str(elements_number2) + ')')
+
+		check_elements_number('plotter', 'subplot_height_share', 'plotter', 'subplots_number')
+		
 		def compare_elements_number(section1, param1, section2, param2):
 			if self.errors.error_occured:
 				return None
@@ -80,6 +90,8 @@ class Plot:
 				self.errors.raise_error('[' + section1 + '][' + param1 + '] elements number(' + str(elements_number1) + ') is not equal [' + section2 + '][' + param2 + '] elements number(' +  str(elements_number2) + ')')
 
 		compare_elements_number(input_feed_format, 'columns', input_feed_format, 'column_data_types')
+		compare_elements_number('plotter', 'x_ticks_data_columns', 'plotter', 'x_ticks')
+		compare_elements_number('plotter', 'x_ticks_data_columns', 'plotter', 'x_labels_format')
 		compare_elements_number('plotter', 'series', 'plotter', 'seria_to_subbplot_binding')
 		
 	def main(self, args):
