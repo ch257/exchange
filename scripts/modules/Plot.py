@@ -55,14 +55,20 @@ class Plot:
 		ignoring_missed_data_line = tools.implode(',', clone_value(self.ini_parser.get_param('plotter_default', 'ignoring_missed_data_line'), len(self.settings['plotter']['series'])))
 		series_linewidth = tools.implode(',', clone_value(self.ini_parser.get_param('plotter_default', 'series_linewidth'), len(self.settings['plotter']['series'])))
 		series_markersize = tools.implode(',', clone_value(self.ini_parser.get_param('plotter_default', 'series_markersize'), len(self.settings['plotter']['series'])))
+		series_marker = tools.implode(',', clone_value(self.ini_parser.get_param('plotter_default', 'series_marker'), len(self.settings['plotter']['series'])))
 		series_color = tools.implode(',', clone_value(self.ini_parser.get_param('plotter_default', 'series_color'), len(self.settings['plotter']['series'])))
 		series_alpha = tools.implode(',', clone_value(self.ini_parser.get_param('plotter_default', 'series_alpha'), len(self.settings['plotter']['series'])))
+		# minor_x_labels = self.ini_parser.get_param('plotter_default', 'minor_x_labels')
+		# major_x_labels = self.ini_parser.get_param('plotter_default', 'major_x_labels')
 		
 		self.settings['plotter']['ignoring_missed_data_line'] = tools.bool_arr(tools.explode(',', self.ini_parser.get_param('plotter', 'ignoring_missed_data_line', error_ignoring = True, default_param_value = ignoring_missed_data_line)))
 		self.settings['plotter']['series_linewidth'] = tools.int_arr(tools.explode(',', self.ini_parser.get_param('plotter', 'series_linewidth', error_ignoring = True, default_param_value = series_linewidth)))
+		self.settings['plotter']['series_marker'] = tools.explode(',', self.ini_parser.get_param('plotter', 'series_marker', error_ignoring = True, default_param_value = series_marker))
 		self.settings['plotter']['series_markersize'] = tools.int_arr(tools.explode(',', self.ini_parser.get_param('plotter', 'series_markersize', error_ignoring = True, default_param_value = series_markersize)))
 		self.settings['plotter']['series_color'] = tools.explode(',', self.ini_parser.get_param('plotter', 'series_color', error_ignoring = True, default_param_value = series_color))
 		self.settings['plotter']['series_alpha'] = tools.float_arr(tools.explode(',', self.ini_parser.get_param('plotter', 'series_alpha', error_ignoring = True, default_param_value = series_alpha)))
+		# self.settings['plotter']['minor_x_labels'] = self.ini_parser.get_param('plotter', 'minor_x_labels', error_ignoring = True, default_param_value = minor_x_labels)
+		# self.settings['plotter']['major_x_labels'] = self.ini_parser.get_param('plotter', 'major_x_labels', error_ignoring = True, default_param_value = major_x_labels)
 		
 		#check several params
 		def compare_elements_number(section1, param1, section2, param2):
@@ -75,8 +81,6 @@ class Plot:
 
 		compare_elements_number(input_feed_format, 'columns', input_feed_format, 'column_data_types')
 		compare_elements_number('plotter', 'series', 'plotter', 'seria_to_subbplot_binding')
-		
-	
 		
 	def main(self, args):
 		self.set_params(args)
