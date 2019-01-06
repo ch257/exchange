@@ -20,3 +20,4 @@ class Files:
 	
 	def read_line(self):
 		return self.handler.readline()
+		
