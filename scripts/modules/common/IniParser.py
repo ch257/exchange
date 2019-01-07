@@ -31,7 +31,7 @@ class IniParser:
 		
 	def read_ini(self, ini_file_path, encoding):
 		if self.errors.error_occured:
-			return self.settiings
+			return self.settings
 		
 		ini_file = Files(self.errors)
 		ini_file.open_file(ini_file_path, 'r', encoding)
@@ -68,7 +68,7 @@ class IniParser:
 	
 	def get_param(self, section, param, c_type = 'str', error_ignoring = False, default_param_value = None):
 		if self.errors.error_occured:
-			return None
+			return ''
 			
 		if self.settings.get(section):
 			if param:

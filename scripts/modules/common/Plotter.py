@@ -20,17 +20,8 @@ class Plotter:
 	def create_subplot(self, subplot_index, subplots_number, subplot_height_share):
 		if subplot_index == 0:
 			self.ax.append(plt.subplot2grid((sum(subplot_height_share) , 1), (self.subplot_offset, 0), rowspan = subplot_height_share[subplot_index]))
-			# plt.setp(self.ax[subplot_index].get_xticklabels(), visible = False)
-			# plt.setp(self.ax[subplot_index].get_xticklabels(minor = True), visible = False)
-			self.ax[subplot_index].grid(which = 'minor', alpha = 0.4)
-			self.ax[subplot_index].grid(which = 'major', alpha = 1)
-			
 		else:
 			self.ax.append(plt.subplot2grid((sum(subplot_height_share) , 1), (self.subplot_offset, 0), rowspan = subplot_height_share[subplot_index], sharex = self.ax[0]))
-			# plt.setp(self.ax[subplot_index].get_xticklabels(), visible = False)
-			# plt.setp(self.ax[subplot_index].get_xticklabels(minor = True), visible = False)
-			self.ax[subplot_index].grid(which = 'minor', alpha = 0.4)
-			self.ax[subplot_index].grid(which = 'major', alpha = 1)
 		
 		self.subplot_offset += subplot_height_share[subplot_index]
 		
@@ -64,6 +55,7 @@ class Plotter:
 			'color': settings['plotter']['series_color'][seria_index],
 			'alpha': settings['plotter']['series_alpha'][seria_index]
 		}
+	
 	def create_label(self, value, format):
 		if format == 'dd-mm':
 			return value['dd'] + '-' + value['mm']
@@ -107,6 +99,9 @@ class Plotter:
 		for subplot_index in range(subplots_number):
 			plt.setp(self.ax[subplot_index].get_xticklabels(), visible = False)
 			plt.setp(self.ax[subplot_index].get_xticklabels(minor = True), visible = False)
+			self.ax[subplot_index].grid(which = 'minor', alpha = 0.4)
+			self.ax[subplot_index].grid(which = 'major', alpha = 1)
+			
 		plt.setp(self.ax[subplots_number - 1].get_xticklabels(), visible = True)
 		plt.setp(self.ax[subplots_number - 1].get_xticklabels(minor = True), visible = True)
 		

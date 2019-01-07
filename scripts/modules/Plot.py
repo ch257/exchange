@@ -25,8 +25,9 @@ class Plot:
 			self.ini_parser.read_ini(args[1], encoding)
 	
 	def set_params(self, args):
-		tools = Tools(self.errors)
 		self.read_settings(args)
+		tools = Tools(self.errors)
+		
 		self.settings['input'] = {}
 		self.settings['input']['file_path'] = self.ini_parser.get_param('input', 'file_path')
 		self.settings['input']['input_feed_format'] = self.ini_parser.get_param('input', 'input_feed_format')

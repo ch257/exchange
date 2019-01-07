@@ -26,13 +26,15 @@ class Template:
 		tools = Tools(self.errors)
 		self.read_settings(args)
 		self.settings['g1'] = self.ini_parser.get_param('g1', None)
-		self.settings['g1']['p1'] = tools.explode(',', self.settings['g1']['p1']);
 		self.settings['g2'] = {}
-		self.settings['g2']['i4'] = self.ini_parser.get_param('g2', 'i4')
+		self.settings['g2']['p1'] = tools.explode(',', self.ini_parser.get_param('g2', 'p1'))
+		self.settings['g3'] = {}
+		self.settings['g3']['i4'] = self.ini_parser.get_param('g3', 'i4', 'int')
 		
 	def main(self, args):
 		self.set_params(args)
 		print(self.settings)
+		
 		if self.errors.error_occured:
 			self.errors.print_errors()
 		else:
