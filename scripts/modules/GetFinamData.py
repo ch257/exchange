@@ -32,21 +32,30 @@ class GetFinamData:
 	def set_params(self, args):
 		tools = Tools(self.errors)
 		self.read_settings(args)
-		self.settings['Tickers'] = {}
-		self.settings['Tickers']['Year'] = self.ini_parser.get_param('Tickers', 'Year')
-		self.settings['Tickers']['Si'] = tools.explode(',', self.ini_parser.get_param('Tickers', 'Si'))
-		self.settings['Tickers']['Timeframes'] = tools.int_arr(tools.explode(',', self.ini_parser.get_param('Tickers', 'Timeframes')))
-		self.settings['TradingPeriod'] = {}
-		for ticker in self.settings['Tickers']['Si']:	
-			self.settings['TradingPeriod'][ticker] = {}
-			self.settings['TradingPeriod'][ticker]['ContractSymbol'] = self.ini_parser.get_param(ticker, 'ContractSymbol')
-			self.settings['TradingPeriod'][ticker]['ContractTradingSymbol'] = self.ini_parser.get_param(ticker, 'ContractTradingSymbol')
-			self.settings['TradingPeriod'][ticker]['FirstTradingDay'] = self.ini_parser.get_param(ticker, 'FirstTradingDay')
-			self.settings['TradingPeriod'][ticker]['LastTradingDay'] = self.ini_parser.get_param(ticker, 'LastTradingDay')
+		self.settings['tickers'] = {}
+		self.settings['tickers']['list'] = tools.explode(',', self.ini_parser.get_param('tickers', 'list'))
+		self.settings['tickers']['year'] = self.ini_parser.get_param('tickers', 'year')
+		self.settings['tickers']['time_frames'] = tools.int_arr(tools.explode(',', self.ini_parser.get_param('tickers', 'time_frames')))
+		
+		self.settings['contracts'] = {}
+		
+		for ticker in self.settings['tickers']['list']:
+			self.settings['contracts'][ticker] = tools.explode(',', self.ini_parser.get_param('contracts', ticker))
+		
+		# self.settings['Contracts']['Si'] = tools.explode(',', self.ini_parser.get_param('Contracts', 'Si'))
+		# self.settings['TradingPeriod'] = {}
+		# for ticker in self.settings['Contracts']['Si']:	
+			# self.settings['TradingPeriod'][ticker] = {}
+			# self.settings['TradingPeriod'][ticker]['ContractSymbol'] = self.ini_parser.get_param(ticker, 'ContractSymbol')
+			# self.settings['TradingPeriod'][ticker]['ContractTradingSymbol'] = self.ini_parser.get_param(ticker, 'ContractTradingSymbol')
+			# self.settings['TradingPeriod'][ticker]['FirstTradingDay'] = self.ini_parser.get_param(ticker, 'FirstTradingDay')
+			# self.settings['TradingPeriod'][ticker]['LastTradingDay'] = self.ini_parser.get_param(ticker, 'LastTradingDay')
 		
 	def main(self, args):
 		self.set_params(args)
-		print(self.settings)
+		
+		
+		print(self.settings['contracts'])
 		
 		if self.errors.error_occured:
 			self.errors.print_errors()
