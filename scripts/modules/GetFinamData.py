@@ -41,8 +41,9 @@ class GetFinamData:
 		
 		for ticker in self.settings['tickers']['list']:
 			self.settings['contracts'][ticker] = {}
-			ticker_list = tools.explode(',', self.ini_parser.get_param('contracts', ticker))
-			for contract in ticker_list:
+			contract_list = tools.explode(',', self.ini_parser.get_param('contracts', ticker))
+			self.settings['contracts'][ticker]['list'] = contract_list
+			for contract in contract_list:
 				self.settings['contracts'][ticker][contract] = self.ini_parser.get_param(contract)
 		
 	def main(self, args):
@@ -50,7 +51,8 @@ class GetFinamData:
 		
 		for ticker in self.settings['tickers']['list']:
 			contracts = self.settings['contracts'][ticker]
-			for contract in contracts:
+			contract_list = contracts['list']
+			for contract in contract_list:
 				contract_detail = contracts[contract]
 				print(contract_detail['ContractSymbol'], contract_detail['FirstTradingDay'])
 		
