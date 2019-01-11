@@ -66,10 +66,13 @@ class IniParser:
 		else:
 			return value
 	
-	def get_param(self, section, param, c_type = 'str', error_ignoring = False, default_param_value = None):
+	def get_param(self, section, param = None, c_type = 'str', error_ignoring = False, default_param_value = None):
 		if self.errors.error_occured:
-			return ''
-			
+			if param:
+				return ''
+			else:
+				return {}
+		
 		if self.settings.get(section):
 			if param:
 				if self.settings[section].get(param):
@@ -77,6 +80,7 @@ class IniParser:
 				else:
 					if not error_ignoring:
 						self.errors.raise_error('No parameter [' + section + '][' + param + '] in ini file ' + self.settings['ini_file_path'])
+						return ''
 					else:
 						return self.type_value(default_param_value, c_type)
 					
@@ -85,3 +89,4 @@ class IniParser:
 		else:
 			if not error_ignoring:
 				self.errors.raise_error('No section [' + section + '] in ini file ' + self.settings['ini_file_path'])
+				return {}
