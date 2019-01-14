@@ -4,3 +4,4 @@ scripts/modules/__pycache__/
 scripts/modules/common/__pycache__/
 bin/
 data/output/
+data/history/

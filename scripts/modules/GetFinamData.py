@@ -32,31 +32,39 @@ class GetFinamData:
 	def set_params(self, args):
 		tools = Tools(self.errors)
 		self.read_settings(args)
-		self.settings['tickers'] = {}
-		self.settings['tickers']['list'] = tools.explode(',', self.ini_parser.get_param('tickers', 'list'))
-		self.settings['tickers']['year'] = self.ini_parser.get_param('tickers', 'year')
-		self.settings['tickers']['time_frames'] = tools.int_arr(tools.explode(',', self.ini_parser.get_param('tickers', 'time_frames')))
-		
+		self.settings['common'] = {}
+		self.settings['common']['time_frames'] = tools.int_arr(tools.explode(',', self.ini_parser.get_param('common', 'time_frames')))
 		self.settings['contracts'] = {}
+		tickers = tools.explode(',', self.ini_parser.get_param('contracts', 'tickers'))
 		
-		for ticker in self.settings['tickers']['list']:
-			self.settings['contracts'][ticker] = {}
-			contract_list = tools.explode(',', self.ini_parser.get_param('contracts', ticker))
-			self.settings['contracts'][ticker]['list'] = contract_list
-			for contract in contract_list:
-				self.settings['contracts'][ticker][contract] = self.ini_parser.get_param(contract)
-		
+		for ticker_idx in  range(len(tickers)):	
+			self.settings['contracts'][ticker_idx] = {}
+			self.settings['contracts'][ticker_idx]['ticker'] = tickers[ticker_idx]
+			self.settings['contracts'][ticker_idx]['list'] = {}
+			list = tools.explode(',', self.ini_parser.get_param('contracts', tickers[ticker_idx]))
+			for contract_idx in range(len(list)): 
+				self.settings['contracts'][ticker_idx]['list'][contract_idx] = self.ini_parser.get_param(list[contract_idx])
+			
 	def main(self, args):
 		self.set_params(args)
 		
-		for ticker in self.settings['tickers']['list']:
-			contracts = self.settings['contracts'][ticker]
-			contract_list = contracts['list']
-			for contract in contract_list:
-				contract_detail = contracts[contract]
-				print(contract_detail['ContractSymbol'], contract_detail['FirstTradingDay'])
+		contracts = self.settings['contracts']
+		for cbt_idx in contracts:
+			contracts_by_ticker = contracts[cbt_idx]
+			ticker = contracts_by_ticker['ticker']
+			list = contracts_by_ticker['list']
+			print(ticker);
+			for contract_idx in list:
+				contract = list[contract_idx]
+				ContractSymbol = contract['ContractSymbol']
+				ContractTradingSymbol = contract['ContractTradingSymbol']
+				FirstTradingDay = contract['FirstTradingDay']
+				LastTradingDay = contract['LastTradingDay']
+				
+				print(ContractTradingSymbol)
+			
 		
-		# print(self.settings['contracts'])
+		# print(self.settings)
 		
 		if self.errors.error_occured:
 			self.errors.print_errors()
