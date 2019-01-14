@@ -35,6 +35,7 @@ class GetFinamData:
 		self.read_settings(args)
 		self.settings['common'] = {}
 		self.settings['common']['time_frames'] = tools.int_arr(tools.explode(',', self.ini_parser.get_param('common', 'time_frames')))
+		self.settings['common']['output_folder'] = self.ini_parser.get_param('common', 'output_folder')
 		self.settings['contracts'] = {}
 		tickers = tools.explode(',', self.ini_parser.get_param('contracts', 'tickers'))
 		
@@ -48,8 +49,12 @@ class GetFinamData:
 			
 	
 	def get_contract(self, _idx = [0, 0]):
+		if self.errors.error_occured:
+			return None, None, None, None, None
+		
 		if _idx[0] < len(self.settings['contracts']):
 			if _idx[1] < len(self.settings['contracts'][_idx[0]]['list']):
+				Ticker = self.settings['contracts'][_idx[0]]['ticker']
 				ContractSymbol = self.settings['contracts'][_idx[0]]['list'][_idx[1]]['ContractSymbol']
 				ContractTradingSymbol = self.settings['contracts'][_idx[0]]['list'][_idx[1]]['ContractTradingSymbol']
 				FirstTradingDay = self.settings['contracts'][_idx[0]]['list'][_idx[1]]['FirstTradingDay']
@@ -58,30 +63,28 @@ class GetFinamData:
 			else:
 				_idx[0] += 1
 				_idx[1] = 0
-				ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay = self.get_contract(_idx)
+				Ticker, ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay = self.get_contract(_idx)
 		else:
+			Ticker = None
 			ContractSymbol = None
 			ContractTradingSymbol = None
 			FirstTradingDay = None
 			LastTradingDay = None
 		
-		return ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay
+		return Ticker, ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay
 	
 	def main(self, args):
 		self.set_params(args)
 		
 		fs = FileSystem(self.errors)
 		
-		# fs.create_folder_branch('s\\e\\r\\')
-		# fs.create_folder_branch('s/e/r/')
-		
 		while True:
-			ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay = self.get_contract()
+			Ticker, ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay = self.get_contract()
 			if ContractSymbol:
+				path = self.settings['common']['output_folder'] + Ticker + '/' + ContractSymbol + '/'
+				fs.create_folder_branch(path)
 				
-				pass
-				
-				# print(ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay)
+				print(Ticker, ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay)
 			else:
 				break
 
