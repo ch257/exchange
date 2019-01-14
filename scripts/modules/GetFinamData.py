@@ -88,11 +88,18 @@ class GetFinamData:
 				
 				# print(Ticker, ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay)
 				
-				first_trading_day = date(int(FirstTradingDay[6:10]), int(FirstTradingDay[3:5]), int(FirstTradingDay[0:2]))
-				last_trading_day = date(int(LastTradingDay[6:10]), int(LastTradingDay[3:5]), int(LastTradingDay[0:2]))
+				ftd_year = int(FirstTradingDay[6:10])
+				ftd_month = int(FirstTradingDay[3:5])
+				ftd_day = int(FirstTradingDay[0:2])
+				first_trading_day = date(ftd_year, ftd_month, ftd_day)
+				
+				ltd_year = int(LastTradingDay[6:10])
+				ltd_month = int(LastTradingDay[3:5])
+				ltd_day = int(LastTradingDay[0:2])
+				last_trading_day = date(ltd_year, ltd_month, ltd_day)
 				
 				delta = last_trading_day - first_trading_day
-				print(Ticker, ContractSymbol, first_trading_day, delta.days)
+				print(Ticker, ContractSymbol, first_trading_day, last_trading_day, delta.days)
 			else:
 				break
 
