@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*
 
+from datetime import date
+
 from modules.common.Errors import *
 from modules.common.IniParser import *
 from modules.common.Tools import *
@@ -84,7 +86,13 @@ class GetFinamData:
 				path = self.settings['common']['output_folder'] + Ticker + '/' + ContractSymbol + '/'
 				fs.create_folder_branch(path)
 				
-				print(Ticker, ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay)
+				# print(Ticker, ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay)
+				
+				first_trading_day = date(int(FirstTradingDay[6:10]), int(FirstTradingDay[3:5]), int(FirstTradingDay[0:2]))
+				last_trading_day = date(int(LastTradingDay[6:10]), int(LastTradingDay[3:5]), int(LastTradingDay[0:2]))
+				
+				delta = last_trading_day - first_trading_day
+				print(Ticker, ContractSymbol, first_trading_day, delta.days)
 			else:
 				break
 
