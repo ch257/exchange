@@ -45,24 +45,38 @@ class GetFinamData:
 			for contract_idx in range(len(list)): 
 				self.settings['contracts'][ticker_idx]['list'][contract_idx] = self.ini_parser.get_param(list[contract_idx])
 			
+	
+	def get_contract(self, _idx = [0, 0]):
+		
+		if _idx[0] < len(self.settings['contracts']):
+			if _idx[1] < len(self.settings['contracts'][_idx[0]]['list']):
+				ContractSymbol = self.settings['contracts'][_idx[0]]['list'][_idx[1]]['ContractSymbol']
+				ContractTradingSymbol = self.settings['contracts'][_idx[0]]['list'][_idx[1]]['ContractTradingSymbol']
+				FirstTradingDay = self.settings['contracts'][_idx[0]]['list'][_idx[1]]['FirstTradingDay']
+				LastTradingDay = self.settings['contracts'][_idx[0]]['list'][_idx[1]]['LastTradingDay']
+				_idx[1] += 1
+			else:
+				_idx[0] += 1
+				_idx[1] = 0
+				ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay = self.get_contract(_idx)
+		else:
+			ContractSymbol = None
+			ContractTradingSymbol = None
+			FirstTradingDay = None
+			LastTradingDay = None
+		
+		return ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay
+	
 	def main(self, args):
 		self.set_params(args)
 		
-		contracts = self.settings['contracts']
-		for cbt_idx in contracts:
-			contracts_by_ticker = contracts[cbt_idx]
-			ticker = contracts_by_ticker['ticker']
-			list = contracts_by_ticker['list']
-			print(ticker);
-			for contract_idx in list:
-				contract = list[contract_idx]
-				ContractSymbol = contract['ContractSymbol']
-				ContractTradingSymbol = contract['ContractTradingSymbol']
-				FirstTradingDay = contract['FirstTradingDay']
-				LastTradingDay = contract['LastTradingDay']
-				
-				print(ContractTradingSymbol)
-			
+		while True:
+			ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay = self.get_contract()
+			if ContractSymbol:
+				print(ContractSymbol)
+			else:
+				break
+
 		
 		# print(self.settings)
 		
