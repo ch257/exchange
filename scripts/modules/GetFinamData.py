@@ -3,6 +3,7 @@
 from modules.common.Errors import *
 from modules.common.IniParser import *
 from modules.common.Tools import *
+from modules.common.FileSystem import *
 
 # import urllib.request
 # url = 'http://export.finam.ru/SPFB.Eu-3.19_190108_190108.txt?market=14&em=487593&code=SPFB.Eu-3.19&apply=0&df=8&mf=0&yf=2019&from=08.01.2019&dt=8&mt=0&yt=2019&to=08.01.2019&p=3&f=SPFB.Eu-3.19_190108_190108&e=.txt&cn=SPFB.Eu-3.19&dtf=1&tmf=1&MSOR=1&mstime=on&mstimever=1&sep=1&sep2=1&datf=1&at=1'
@@ -47,7 +48,6 @@ class GetFinamData:
 			
 	
 	def get_contract(self, _idx = [0, 0]):
-		
 		if _idx[0] < len(self.settings['contracts']):
 			if _idx[1] < len(self.settings['contracts'][_idx[0]]['list']):
 				ContractSymbol = self.settings['contracts'][_idx[0]]['list'][_idx[1]]['ContractSymbol']
@@ -70,10 +70,18 @@ class GetFinamData:
 	def main(self, args):
 		self.set_params(args)
 		
+		fs = FileSystem(self.errors)
+		
+		# fs.create_folder_branch('s\\e\\r\\')
+		# fs.create_folder_branch('s/e/r/')
+		
 		while True:
 			ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay = self.get_contract()
 			if ContractSymbol:
-				print(ContractSymbol)
+				
+				pass
+				
+				# print(ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay)
 			else:
 				break
 
