@@ -78,7 +78,7 @@ class GetFinamData:
 		
 		fs = FileSystem(self.errors)
 		
-		while True:
+		while not self.errors.error_occured:
 			Ticker, ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay = self.get_contract()
 			if ContractSymbol:
 				path = self.settings['common']['output_folder'] + Ticker + '/' + ContractSymbol + '/'
