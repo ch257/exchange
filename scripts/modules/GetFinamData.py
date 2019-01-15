@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*
 
+import time
 import datetime
 from datetime import datetime as dt, date #, time
 import urllib.request
@@ -160,6 +161,8 @@ class GetFinamData:
 			'&yt=' + yt +
 			'&to=' + to +
 			'&p=' + p +
+			'&f=' + f +
+			'&e=' + e +
 			'&cn=' + cn +
 			'&dtf=' + dtf +
 			'&tmf=' + tmf +
@@ -210,40 +213,41 @@ class GetFinamData:
 					if now_day < current_trading_day:
 						break
 					else:
-						if self.is_non_working_day(current_trading_day):
-							continue
-						if now_day > last_trading_day:
-							arch = True
-						else:
-							arch = False
-						
-						for time_frame in time_frames:
-							path = self.settings['common']['output_folder'] + str(ltd_year) + '/' + Ticker + '/' + ContractSymbol + '/' + time_frame + '/'
-							fs.create_folder_branch(path)
+						if not self.is_non_working_day(current_trading_day):
+							if now_day > last_trading_day:
+								arch = True
+							else:
+								arch = False
 							
-							url, file = self.shape_finam_url(current_trading_day, arch, FinamEm, ContractSymbol, time_frame)
-							try:
-								page = urllib.request.urlopen(url)
-							except Exception as e:
-								self.errors.raise_error('Can\'t open url ' + url)
-								break
-							content = page.read()
-							content = content.decode('utf-8').replace('\\r\\n', '\n')
-							file_path = path + file
-							
-							if not os.path.exists(file_path):
-								print(Ticker, ContractSymbol, current_trading_day, time_frame)
-								try:
-									with open(file_path, "w") as text_file:
-										print(content, file=text_file)
-								except Exception as e:
-									self.errors.raise_error('Can\'t write file ' + file_path)
-									break
+							for time_frame in time_frames:
+								path = self.settings['common']['output_folder'] + str(ltd_year) + '/' + Ticker + '/' + ContractSymbol + '/' + time_frame + '/'
+								fs.create_folder_branch(path)
+								
+								url, file = self.shape_finam_url(current_trading_day, arch, FinamEm, ContractSymbol, time_frame)
+								file_path = path + file		
+								
+								if not os.path.exists(file_path):
+									print(Ticker, ContractSymbol, current_trading_day, time_frame)
+									try:
+										page = urllib.request.urlopen(url)
+									except Exception as e:
+										self.errors.raise_error('Can\'t open url ' + url)
+										break
+									content = page.read()
+									content = content.decode('utf-8').replace('\\r\\n', '\n')
+									
+									try:
+										with open(file_path, "w") as text_file:
+											print(content, file=text_file)
+									except Exception as e:
+										self.errors.raise_error('Can\'t write file ' + file_path)
+										break
+									time.sleep(5)
 						# break #deb
 					current_trading_day += one_day
 			else:
 				break
-
+			
 		
 		# print(self.settings)
 		
