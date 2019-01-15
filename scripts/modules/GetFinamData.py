@@ -29,10 +29,10 @@ class GetFinamData:
 		else:
 			encoding = self.ini_encoding
 			if len(args) > 2:
-				encoding = args[2]
+				self.ini_encoding = args[2]
 				
 			ini_file_path = args[1]
-			self.ini_parser.read_ini(args[1], encoding)
+			self.ini_parser.read_ini(args[1], self.ini_encoding)
 	
 	def set_params(self, args):
 		tools = Tools(self.errors)
@@ -40,6 +40,13 @@ class GetFinamData:
 		self.settings['common'] = {}
 		self.settings['common']['time_frames'] = tools.explode(',', self.ini_parser.get_param('common', 'time_frames'))
 		self.settings['common']['output_folder'] = self.ini_parser.get_param('common', 'output_folder')
+		self.settings['common']['trading_calendar'] = self.ini_parser.get_param('common', 'trading_calendar')
+		
+		tc_ini_parser = IniParser(self.errors)
+		tc_ini_parser.read_ini(self.settings['common']['trading_calendar'], self.ini_encoding)
+		self.settings['non_working_days'] = {}
+		self.settings['non_working_days'] = tc_ini_parser.get_param('non_working_days')
+		
 		self.settings['contracts'] = {}
 		tickers = tools.explode(',', self.ini_parser.get_param('contracts', 'tickers'))
 		
@@ -173,7 +180,8 @@ class GetFinamData:
 		fs = FileSystem(self.errors)
 		now_day = dt.today().date()
 		
-		time_frames = self.settings['common']['time_frames'][0]
+		time_frames = self.settings['common']['time_frames']
+		print(self.settings['non_working_days'])
 				
 		while not self.errors.error_occured:
 			Ticker, ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay, FinamEm = self.get_contract()
@@ -204,9 +212,10 @@ class GetFinamData:
 							content = content.decode('utf-8').replace('\\r\\n', '\n')
 							file_path = path + file
 							
-							print(Ticker, ContractSymbol, current_trading_day, time_frames)
-							with open(file_path, "w") as text_file:
-								print(content, file=text_file)
+							if not os.path.exists(file_path):
+								print(Ticker, ContractSymbol, current_trading_day, time_frame)
+								with open(file_path, "w") as text_file:
+									print(content, file=text_file)
 							
 						break #deb
 					current_trading_day += one_day
