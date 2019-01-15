@@ -42,7 +42,7 @@ class GetFinamData:
 		self.settings['contracts'] = {}
 		tickers = tools.explode(',', self.ini_parser.get_param('contracts', 'tickers'))
 		
-		for ticker_idx in  range(len(tickers)):	
+		for ticker_idx in range(len(tickers)):	
 			self.settings['contracts'][ticker_idx] = {}
 			self.settings['contracts'][ticker_idx]['ticker'] = tickers[ticker_idx]
 			self.settings['contracts'][ticker_idx]['list'] = {}
@@ -80,7 +80,8 @@ class GetFinamData:
 		self.set_params(args)
 		
 		fs = FileSystem(self.errors)
-		
+		now_day = dt.today().date()
+				
 		while not self.errors.error_occured:
 			Ticker, ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay = self.get_contract()
 			if Ticker:
@@ -93,9 +94,16 @@ class GetFinamData:
 				delta = last_trading_day - first_trading_day
 				one_day = datetime.timedelta(days=1)
 				current_trading_day = first_trading_day
-				for i in range(delta.days):
+				for day_cnt in range(delta.days):
+					if now_day < current_trading_day:
+						break
+					else:
+						if now_day > last_trading_day:
+							arch = True
+						else:
+							arch = False
 					
-					print(Ticker, ContractSymbol, current_trading_day)
+						print(Ticker, ContractSymbol, current_trading_day, arch)
 					current_trading_day += one_day
 			else:
 				break
