@@ -2,6 +2,7 @@
 
 import datetime
 from datetime import datetime as dt, date, time
+import urllib.request
 
 from modules.common.Errors import *
 from modules.common.IniParser import *
@@ -125,9 +126,18 @@ class GetFinamData:
 		f = code + '_' + dt.strftime(current_trading_day, '%Y-%m-%d')
 		e = '.txt'
 		cn = code
-		dtf = 1
-		tmf = 1
-		url += (f + e + 
+		dtf = '1'
+		tmf = '1'
+		MSOR = '1'
+		mstime = 'on' 
+		mstimever = '1' 
+		sep = '1'
+		sep2 = '1'
+		datf = '1'
+		at = '1'
+		
+		url += (
+			f + e + 
 			'?market=' + market +
 			'&em=' + em +
 			'&code=' + code +
@@ -142,14 +152,18 @@ class GetFinamData:
 			'&to=' + to +
 			'&p=' + p +
 			'&cn=' + cn +
-			'&=' + '' +
-			'&=' + '' +
+			'&dtf=' + dtf +
+			'&tmf=' + tmf +
+			'&MSOR=' + MSOR +
+			'&mstime=' + mstime +
+			'&mstimever=' + mstimever +
+			'&sep=' + sep +
+			'&sep2=' + sep2 +
+			'&datf=' + datf +
+			'&at=' + at +
+		'')
 			
-			
-			'')
-			
-			
-		return url
+		return url, f + e
 	
 	def main(self, args):
 		self.set_params(args)
@@ -180,9 +194,17 @@ class GetFinamData:
 						else:
 							arch = False
 						
-						url = self.shape_finam_url(current_trading_day, arch, ContractSymbol, time_frame)
+						print(Ticker, ContractSymbol, current_trading_day)
 						
-						print(Ticker, ContractSymbol, current_trading_day, arch, url)
+						url, file = self.shape_finam_url(current_trading_day, arch, ContractSymbol, time_frame)
+						page = urllib.request.urlopen(url)
+						content = page.read()
+						content = content.decode('utf-8').replace('\\r\\n', '\n')
+						file_path = path + file
+						with open(file_path, "w") as text_file:
+							print(content, file=text_file)
+						
+						break #deb
 					current_trading_day += one_day
 			else:
 				break
