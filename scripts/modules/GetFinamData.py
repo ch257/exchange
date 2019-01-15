@@ -234,7 +234,7 @@ class GetFinamData:
 										self.errors.raise_error('Can\'t open url ' + url)
 										break
 									content = page.read()
-									content = content.decode('utf-8').replace('\\r\\n', '\n')
+									content = content.decode('utf-8').replace('\r', '')
 									
 									try:
 										with open(file_path, "w") as text_file:
@@ -242,7 +242,7 @@ class GetFinamData:
 									except Exception as e:
 										self.errors.raise_error('Can\'t write file ' + file_path)
 										break
-									time.sleep(5)
+									time.sleep(1)
 						# break #deb
 					current_trading_day += one_day
 			else:
