@@ -37,7 +37,7 @@ class GetFinamData:
 		tools = Tools(self.errors)
 		self.read_settings(args)
 		self.settings['common'] = {}
-		self.settings['common']['time_frames'] = tools.int_arr(tools.explode(',', self.ini_parser.get_param('common', 'time_frames')))
+		self.settings['common']['time_frames'] = tools.explode(',', self.ini_parser.get_param('common', 'time_frames'))
 		self.settings['common']['output_folder'] = self.ini_parser.get_param('common', 'output_folder')
 		self.settings['contracts'] = {}
 		tickers = tools.explode(',', self.ini_parser.get_param('contracts', 'tickers'))
@@ -76,11 +76,88 @@ class GetFinamData:
 		
 		return Ticker, ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay
 	
+	def shape_finam_url(self, current_trading_day, arch, ContractSymbol, time_frame):
+		# url = http://export.finam.ru/SPFB.Eu-3.19_190108_190108.txt?
+		# market = 14 # Номер рынка
+		# em = 487593 # Номер инструмента
+		# code = SPFB.Eu-3.19 # Тикер инструмента
+		# apply = 0 # 
+		# df = 8 # Начальная дата, номер дня (1-31)
+		# mf = 0 # Начальная дата, номер месяца (0-11)
+		# yf = 2019 # Начальная дата, год
+		# from = 08.01.2019 # Начальная дата
+		# dt = 8 # Конечная дата, номер дня
+		# mt = 0 # Конечная дата, номер месяца
+		# yt = 2019 # Конечная дата, год
+		# to = 08.01.2019 # Конечная дата
+		# p = 3 # Таймфрейм {'tick': 1, 'min': 2, '5min': 3, '10min': 4, '15min': 5, '30min': 6, 'hour': 7, 'daily': 8, 'week': 9, 'month': 10}
+		# f = SPFB.Eu-3.19_190108_190108 # Имя сформированного файла
+		# e = .txt # Расширение сформированного файла#  возможны варианты — .txt либо .csv
+		# cn = SPFB.Eu-3.19 # Имя контракта
+		# dtf = 1 # формат даты (1 — ггггммдд, 2 — ггммдд, 3 — ддммгг, 4 — дд/мм/гг, 5 — мм/дд/гг)
+		# tmf = 1 # формат времени (1 — ччммсс, 2 — ччмм, 3 — чч: мм: сс, 4 — чч: мм)
+		# MSOR = 1 # выдавать время (0 — начала свечи, 1 — окончания свечи)
+		# mstime = on # выдавать время (НЕ московское — mstimever=0#  московское — mstime='on', mstimever='1')
+		# mstimever = 1 # Коррекция часового пояса
+		# sep = 1 # Разделитель полей (1 — запятая (,), 2 — точка (.), 3 — точка с запятой (;), 4 — табуляция (»), 5 — пробел ( ))
+		# sep2 = 1 # Разделитель разрядов (1 — нет, 2 — точка (.), 3 — запятая (,), 4 — пробел ( ), 5 — кавычка ('))
+		# datf = 1 # Перечень получаемых данных (#1 — TICKER, PER, DATE, TIME, OPEN, HIGH, LOW, CLOSE, VOL#  #2 — TICKER, PER, DATE, TIME, OPEN, HIGH, LOW, CLOSE#  #3 — TICKER, PER, DATE, TIME, CLOSE, VOL#  #4 — TICKER, PER, DATE, TIME, CLOSE#  #5 — DATE, TIME, OPEN, HIGH, LOW, CLOSE, VOL#  #6 — DATE, TIME, LAST, VOL, ID, OPER).
+		# at = 1 # добавлять заголовок в файл (0 — нет, 1 — да)
+		
+		url = 'http://export.finam.ru/'
+		if arch:
+			market = '13'
+		else:
+			market = '14'
+		em = '487593'
+		code = 'SPFB.' + ContractSymbol
+		apply = '0'
+		df = str(current_trading_day.day)
+		mf = str(current_trading_day.month - 1)
+		yf = str(current_trading_day.year)
+		_from = dt.strftime(current_trading_day, '%d.%m.%Y')
+		_dt = str(current_trading_day.day)
+		mt = str(current_trading_day.month - 1)
+		yt = str(current_trading_day.year)
+		to = dt.strftime(current_trading_day, '%d.%m.%Y')
+		time_frame_codes = {'0': '1', '1': '2', '5': '3', '10': '4', '15': '5', '30': '6', '60': '7', 'D': '8', 'W': '9', 'M': '10'}
+		p = time_frame_codes[time_frame]
+		f = code + '_' + dt.strftime(current_trading_day, '%Y-%m-%d')
+		e = '.txt'
+		cn = code
+		dtf = 1
+		tmf = 1
+		url += (f + e + 
+			'?market=' + market +
+			'&em=' + em +
+			'&code=' + code +
+			'&apply=' + apply +
+			'&df=' + df +
+			'&mf=' + mf +
+			'&yf=' + yf +
+			'&from=' + _from +
+			'&dt=' + _dt +
+			'&mt=' + mt +
+			'&yt=' + yt +
+			'&to=' + to +
+			'&p=' + p +
+			'&cn=' + cn +
+			'&=' + '' +
+			'&=' + '' +
+			
+			
+			'')
+			
+			
+		return url
+	
 	def main(self, args):
 		self.set_params(args)
 		
 		fs = FileSystem(self.errors)
 		now_day = dt.today().date()
+		
+		time_frame = self.settings['common']['time_frames'][0]
 				
 		while not self.errors.error_occured:
 			Ticker, ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay = self.get_contract()
@@ -102,8 +179,10 @@ class GetFinamData:
 							arch = True
 						else:
 							arch = False
-					
-						print(Ticker, ContractSymbol, current_trading_day, arch)
+						
+						url = self.shape_finam_url(current_trading_day, arch, ContractSymbol, time_frame)
+						
+						print(Ticker, ContractSymbol, current_trading_day, arch, url)
 					current_trading_day += one_day
 			else:
 				break
