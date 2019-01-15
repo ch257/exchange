@@ -54,7 +54,7 @@ class GetFinamData:
 	
 	def get_contract(self, _idx = [0, 0]):
 		if self.errors.error_occured:
-			return None, None, None, None, None
+			return None, None, None, None, None, None
 		
 		if _idx[0] < len(self.settings['contracts']):
 			if _idx[1] < len(self.settings['contracts'][_idx[0]]['list']):
@@ -63,21 +63,23 @@ class GetFinamData:
 				ContractTradingSymbol = self.settings['contracts'][_idx[0]]['list'][_idx[1]]['ContractTradingSymbol']
 				FirstTradingDay = self.settings['contracts'][_idx[0]]['list'][_idx[1]]['FirstTradingDay']
 				LastTradingDay = self.settings['contracts'][_idx[0]]['list'][_idx[1]]['LastTradingDay']
+				FinamEm = self.settings['contracts'][_idx[0]]['list'][_idx[1]]['FinamEm']
 				_idx[1] += 1
 			else:
 				_idx[0] += 1
 				_idx[1] = 0
-				Ticker, ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay = self.get_contract(_idx)
+				Ticker, ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay, FinamEm = self.get_contract(_idx)
 		else:
 			Ticker = None
 			ContractSymbol = None
 			ContractTradingSymbol = None
 			FirstTradingDay = None
 			LastTradingDay = None
+			FinamEm = None
 		
-		return Ticker, ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay
+		return Ticker, ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay, FinamEm
 	
-	def shape_finam_url(self, current_trading_day, arch, ContractSymbol, time_frame):
+	def shape_finam_url(self, current_trading_day, arch, FinamEm, ContractSymbol, time_frame):
 		# url = http://export.finam.ru/SPFB.Eu-3.19_190108_190108.txt?
 		# market = 14 # Номер рынка
 		# em = 487593 # Номер инструмента
@@ -110,7 +112,7 @@ class GetFinamData:
 			market = '13'
 		else:
 			market = '14'
-		em = '487593'
+		em = FinamEm
 		code = 'SPFB.' + ContractSymbol
 		apply = '0'
 		df = str(current_trading_day.day)
@@ -171,16 +173,14 @@ class GetFinamData:
 		fs = FileSystem(self.errors)
 		now_day = dt.today().date()
 		
-		time_frame = self.settings['common']['time_frames'][0]
+		time_frames = self.settings['common']['time_frames'][0]
 				
 		while not self.errors.error_occured:
-			Ticker, ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay = self.get_contract()
+			Ticker, ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay, FinamEm = self.get_contract()
 			if Ticker:
 				first_trading_day = dt.strptime(FirstTradingDay, '%d.%m.%Y').date()
 				last_trading_day = dt.strptime(LastTradingDay, '%d.%m.%Y').date()
 				ltd_year = last_trading_day.year
-				path = self.settings['common']['output_folder'] + str(ltd_year) + '/' + Ticker + '/' + ContractSymbol + '/'
-				fs.create_folder_branch(path)
 				
 				delta = last_trading_day - first_trading_day
 				one_day = datetime.timedelta(days=1)
@@ -194,16 +194,20 @@ class GetFinamData:
 						else:
 							arch = False
 						
-						print(Ticker, ContractSymbol, current_trading_day)
-						
-						url, file = self.shape_finam_url(current_trading_day, arch, ContractSymbol, time_frame)
-						page = urllib.request.urlopen(url)
-						content = page.read()
-						content = content.decode('utf-8').replace('\\r\\n', '\n')
-						file_path = path + file
-						with open(file_path, "w") as text_file:
-							print(content, file=text_file)
-						
+						for time_frame in time_frames:
+							path = self.settings['common']['output_folder'] + str(ltd_year) + '/' + Ticker + '/' + ContractSymbol + '/' + time_frame + '/'
+							fs.create_folder_branch(path)
+							
+							url, file = self.shape_finam_url(current_trading_day, arch, FinamEm, ContractSymbol, time_frame)
+							page = urllib.request.urlopen(url)
+							content = page.read()
+							content = content.decode('utf-8').replace('\\r\\n', '\n')
+							file_path = path + file
+							
+							print(Ticker, ContractSymbol, current_trading_day, time_frames)
+							with open(file_path, "w") as text_file:
+								print(content, file=text_file)
+							
 						break #deb
 					current_trading_day += one_day
 			else:
