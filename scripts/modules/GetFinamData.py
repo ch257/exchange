@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*
 
-from datetime import date
+import datetime
+from datetime import datetime as dt, date, time
 
 from modules.common.Errors import *
 from modules.common.IniParser import *
@@ -82,24 +83,20 @@ class GetFinamData:
 		
 		while not self.errors.error_occured:
 			Ticker, ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay = self.get_contract()
-			if ContractSymbol:
-				path = self.settings['common']['output_folder'] + Ticker + '/' + ContractSymbol + '/'
+			if Ticker:
+				first_trading_day = dt.strptime(FirstTradingDay, '%d.%m.%Y').date()
+				last_trading_day = dt.strptime(LastTradingDay, '%d.%m.%Y').date()
+				ltd_year = last_trading_day.year
+				path = self.settings['common']['output_folder'] + str(ltd_year) + '/' + Ticker + '/' + ContractSymbol + '/'
 				fs.create_folder_branch(path)
 				
-				# print(Ticker, ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay)
-				
-				ftd_year = int(FirstTradingDay[6:10])
-				ftd_month = int(FirstTradingDay[3:5])
-				ftd_day = int(FirstTradingDay[0:2])
-				first_trading_day = date(ftd_year, ftd_month, ftd_day)
-				
-				ltd_year = int(LastTradingDay[6:10])
-				ltd_month = int(LastTradingDay[3:5])
-				ltd_day = int(LastTradingDay[0:2])
-				last_trading_day = date(ltd_year, ltd_month, ltd_day)
-				
 				delta = last_trading_day - first_trading_day
-				print(Ticker, ContractSymbol, first_trading_day, last_trading_day, delta.days)
+				one_day = datetime.timedelta(days=1)
+				current_trading_day = first_trading_day
+				for i in range(delta.days):
+					
+					print(Ticker, ContractSymbol, current_trading_day)
+					current_trading_day += one_day
 			else:
 				break
 
