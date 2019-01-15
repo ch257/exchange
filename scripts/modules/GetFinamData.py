@@ -21,6 +21,7 @@ class GetFinamData:
 		self.errors = Errors()
 		self.ini_encoding = 'utf-8'
 		self.ini_parser = IniParser(self.errors)
+		self.tc_ini_parser = IniParser(self.errors)
 		self.settings = {}
 	
 	def read_settings(self, args):
@@ -42,10 +43,9 @@ class GetFinamData:
 		self.settings['common']['output_folder'] = self.ini_parser.get_param('common', 'output_folder')
 		self.settings['common']['trading_calendar'] = self.ini_parser.get_param('common', 'trading_calendar')
 		
-		tc_ini_parser = IniParser(self.errors)
-		tc_ini_parser.read_ini(self.settings['common']['trading_calendar'], self.ini_encoding)
-		self.settings['non_working_days'] = {}
-		self.settings['non_working_days'] = tc_ini_parser.get_param('non_working_days')
+		self.tc_ini_parser.read_ini(self.settings['common']['trading_calendar'], self.ini_encoding)
+		# self.settings['non_working_days'] = {}
+		# self.settings['non_working_days'] = self.tc_ini_parser.get_param('non_working_days')
 		
 		self.settings['contracts'] = {}
 		tickers = tools.explode(',', self.ini_parser.get_param('contracts', 'tickers'))
@@ -174,6 +174,20 @@ class GetFinamData:
 			
 		return url, f + e
 	
+	def is_non_working_day(self, current_trading_day):
+		if self.errors.error_occured:
+			return True
+		ctd_year = str(current_trading_day.year)
+		ctd_month = str(current_trading_day.month)
+		ctd_day = str(current_trading_day.day)
+
+		tools = Tools(self.errors)
+		nw_days =  tools.explode(',', self.tc_ini_parser.get_param('non_working_days', ctd_month + '.' + ctd_year))
+		if ctd_day in nw_days:
+			return True
+
+		return False;
+	
 	def main(self, args):
 		self.set_params(args)
 		
@@ -181,7 +195,6 @@ class GetFinamData:
 		now_day = dt.today().date()
 		
 		time_frames = self.settings['common']['time_frames']
-		print(self.settings['non_working_days'])
 				
 		while not self.errors.error_occured:
 			Ticker, ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay, FinamEm = self.get_contract()
@@ -197,6 +210,8 @@ class GetFinamData:
 					if now_day < current_trading_day:
 						break
 					else:
+						if self.is_non_working_day(current_trading_day):
+							continue
 						if now_day > last_trading_day:
 							arch = True
 						else:
@@ -207,17 +222,24 @@ class GetFinamData:
 							fs.create_folder_branch(path)
 							
 							url, file = self.shape_finam_url(current_trading_day, arch, FinamEm, ContractSymbol, time_frame)
-							page = urllib.request.urlopen(url)
+							try:
+								page = urllib.request.urlopen(url)
+							except Exception as e:
+								self.errors.raise_error('Can\'t open url ' + url)
+								break
 							content = page.read()
 							content = content.decode('utf-8').replace('\\r\\n', '\n')
 							file_path = path + file
 							
 							if not os.path.exists(file_path):
 								print(Ticker, ContractSymbol, current_trading_day, time_frame)
-								with open(file_path, "w") as text_file:
-									print(content, file=text_file)
-							
-						break #deb
+								try:
+									with open(file_path, "w") as text_file:
+										print(content, file=text_file)
+								except Exception as e:
+									self.errors.raise_error('Can\'t write file ' + file_path)
+									break
+						# break #deb
 					current_trading_day += one_day
 			else:
 				break
