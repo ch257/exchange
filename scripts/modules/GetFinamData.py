@@ -43,6 +43,7 @@ class GetFinamData:
 		self.settings['common']['time_frames'] = tools.explode(',', self.ini_parser.get_param('common', 'time_frames'))
 		self.settings['common']['output_folder'] = self.ini_parser.get_param('common', 'output_folder')
 		self.settings['common']['trading_calendar'] = self.ini_parser.get_param('common', 'trading_calendar')
+		self.settings['common']['always_update_last_days_number'] = self.ini_parser.get_param('common', 'always_update_last_days_number', 'int')
 		
 		self.tc_ini_parser.read_ini(self.settings['common']['trading_calendar'], self.ini_encoding)
 		# self.settings['non_working_days'] = {}
@@ -178,8 +179,6 @@ class GetFinamData:
 		return url, f + e
 	
 	def is_non_working_day(self, current_trading_day):
-		if self.errors.error_occured:
-			return True
 		ctd_year = str(current_trading_day.year)
 		ctd_month = str(current_trading_day.month)
 		ctd_day = str(current_trading_day.day)
@@ -190,6 +189,20 @@ class GetFinamData:
 			return True
 
 		return False;
+		
+	def allow_update(self, now_day, current_trading_day, file_path) :
+		if self.errors.error_occured:
+			return False
+		
+		days_shift = datetime.timedelta(days=self.settings['common']['always_update_last_days_number'])
+		if current_trading_day < now_day - days_shift:
+			if not self.is_non_working_day(current_trading_day):
+				if not os.path.exists(file_path):
+					return True
+		elif current_trading_day <= now_day:
+			if not self.is_non_working_day(current_trading_day):
+				return True
+		return False
 	
 	def main(self, args):
 		self.set_params(args)
@@ -210,44 +223,36 @@ class GetFinamData:
 				one_day = datetime.timedelta(days=1)
 				current_trading_day = first_trading_day
 				for day_cnt in range(delta.days):
-					if now_day < current_trading_day:
-						break
-					else:
-						if not self.is_non_working_day(current_trading_day):
-							if now_day > last_trading_day:
-								arch = True
-							else:
-								arch = False
+					for time_frame in time_frames:	
+						if now_day > last_trading_day:
+							arch = True
+						else:
+							arch = False
+						path = self.settings['common']['output_folder'] + str(ltd_year) + '/' + Ticker + '/' + ContractSymbol + '/' + time_frame + '/'
+						fs.create_folder_branch(path)
+						url, file = self.shape_finam_url(current_trading_day, arch, FinamEm, ContractSymbol, time_frame)
+						file_path = path + file		
+						if self.allow_update(now_day, current_trading_day, file_path):
+							print(Ticker, ContractSymbol, current_trading_day, time_frame)
+							try:
+								page = urllib.request.urlopen(url)
+							except Exception as e:
+								self.errors.raise_error('Can\'t open url ' + url)
+								break
+							content = page.read()
+							content = content.decode('utf-8').replace('\r', '')
 							
-							for time_frame in time_frames:
-								path = self.settings['common']['output_folder'] + str(ltd_year) + '/' + Ticker + '/' + ContractSymbol + '/' + time_frame + '/'
-								fs.create_folder_branch(path)
-								
-								url, file = self.shape_finam_url(current_trading_day, arch, FinamEm, ContractSymbol, time_frame)
-								file_path = path + file		
-								
-								if not os.path.exists(file_path):
-									print(Ticker, ContractSymbol, current_trading_day, time_frame)
-									try:
-										page = urllib.request.urlopen(url)
-									except Exception as e:
-										self.errors.raise_error('Can\'t open url ' + url)
-										break
-									content = page.read()
-									content = content.decode('utf-8').replace('\r', '')
-									
-									try:
-										with open(file_path, "w") as text_file:
-											print(content, file=text_file)
-									except Exception as e:
-										self.errors.raise_error('Can\'t write file ' + file_path)
-										break
-									time.sleep(1)
-						# break #deb
+							try:
+								with open(file_path, "w") as text_file:
+									print(content, file=text_file)
+							except Exception as e:
+								self.errors.raise_error('Can\'t write file ' + file_path)
+								break
+							time.sleep(1)
+
 					current_trading_day += one_day
 			else:
 				break
-			
 		
 		# print(self.settings)
 		
