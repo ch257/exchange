@@ -43,7 +43,7 @@ class GetFinamData:
 		self.settings['common']['time_frames'] = tools.explode(',', self.ini_parser.get_param('common', 'time_frames'))
 		self.settings['common']['output_folder'] = self.ini_parser.get_param('common', 'output_folder')
 		self.settings['common']['trading_calendar'] = self.ini_parser.get_param('common', 'trading_calendar')
-		self.settings['common']['always_update_last_days_number'] = self.ini_parser.get_param('common', 'always_update_last_days_number', 'int')
+		self.settings['common']['always_update_past_days_number'] = self.ini_parser.get_param('common', 'always_update_past_days_number', 'int')
 		
 		self.tc_ini_parser.read_ini(self.settings['common']['trading_calendar'], self.ini_encoding)
 		# self.settings['non_working_days'] = {}
@@ -194,7 +194,7 @@ class GetFinamData:
 		if self.errors.error_occured:
 			return False
 		
-		days_shift = datetime.timedelta(days=self.settings['common']['always_update_last_days_number'])
+		days_shift = datetime.timedelta(days=self.settings['common']['always_update_past_days_number'])
 		if current_trading_day < now_day - days_shift:
 			if not self.is_non_working_day(current_trading_day):
 				if not os.path.exists(file_path):
