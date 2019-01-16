@@ -79,12 +79,7 @@ class GetFinamData:
 				_idx[1] = 0
 				Ticker, ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay, FinamEm = self.get_contract(_idx)
 		else:
-			Ticker = None
-			ContractSymbol = None
-			ContractTradingSymbol = None
-			FirstTradingDay = None
-			LastTradingDay = None
-			FinamEm = None
+			return None, None, None, None, None, None
 		
 		return Ticker, ContractSymbol, ContractTradingSymbol, FirstTradingDay, LastTradingDay, FinamEm
 	
@@ -219,10 +214,11 @@ class GetFinamData:
 				last_trading_day = dt.strptime(LastTradingDay, '%d.%m.%Y').date()
 				ltd_year = last_trading_day.year
 				
-				delta = last_trading_day - first_trading_day
+				# delta = last_trading_day - first_trading_day
 				one_day = datetime.timedelta(days=1)
 				current_trading_day = first_trading_day
-				for day_cnt in range(delta.days):
+				while not self.errors.error_occured:
+				# for day_cnt in range(delta.days):
 					for time_frame in time_frames:	
 						if now_day > last_trading_day:
 							arch = True
@@ -251,6 +247,8 @@ class GetFinamData:
 							time.sleep(1)
 
 					current_trading_day += one_day
+					if current_trading_day > last_trading_day:
+						break
 			else:
 				break
 		
