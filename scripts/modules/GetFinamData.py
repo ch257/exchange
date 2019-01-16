@@ -190,6 +190,7 @@ class GetFinamData:
 			return False
 		
 		day_cnt = 1
+		days_shift = datetime.timedelta(days=0)
 		always_update_past_days_number = self.settings['common']['always_update_past_days_number']
 		while always_update_past_days_number > 0:
 			days_shift = datetime.timedelta(days=day_cnt)
