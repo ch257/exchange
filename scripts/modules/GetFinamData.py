@@ -189,7 +189,14 @@ class GetFinamData:
 		if self.errors.error_occured:
 			return False
 		
-		days_shift = datetime.timedelta(days=self.settings['common']['always_update_past_days_number'])
+		day_cnt = 1
+		always_update_past_days_number = self.settings['common']['always_update_past_days_number']
+		while always_update_past_days_number > 0:
+			days_shift = datetime.timedelta(days=day_cnt)
+			if not self.is_non_working_day(now_day - days_shift):
+				always_update_past_days_number -= 1
+			day_cnt += 1
+
 		if current_trading_day < now_day - days_shift:
 			if not self.is_non_working_day(current_trading_day):
 				if not os.path.exists(file_path):
