@@ -43,7 +43,7 @@ class GetFinamData:
 		self.settings['common']['time_frames'] = tools.explode(',', self.ini_parser.get_param('common', 'time_frames'))
 		self.settings['common']['output_folder'] = self.ini_parser.get_param('common', 'output_folder')
 		self.settings['common']['trading_calendar'] = self.ini_parser.get_param('common', 'trading_calendar')
-		self.settings['common']['always_update_past_days_number'] = self.ini_parser.get_param('common', 'always_update_past_days_number', 'int')
+		self.settings['common']['always_update_past_working_days_number'] = self.ini_parser.get_param('common', 'always_update_past_working_days_number', 'int')
 		
 		self.tc_ini_parser.read_ini(self.settings['common']['trading_calendar'], self.ini_encoding)
 		# self.settings['non_working_days'] = {}
@@ -191,11 +191,11 @@ class GetFinamData:
 		
 		day_cnt = 1
 		days_shift = datetime.timedelta(days=0)
-		always_update_past_days_number = self.settings['common']['always_update_past_days_number']
-		while always_update_past_days_number > 0:
+		always_update_past_working_days_number = self.settings['common']['always_update_past_working_days_number']
+		while always_update_past_working_days_number > 0:
 			days_shift = datetime.timedelta(days=day_cnt)
 			if not self.is_non_working_day(now_day - days_shift):
-				always_update_past_days_number -= 1
+				always_update_past_working_days_number -= 1
 			day_cnt += 1
 
 		if current_trading_day < now_day - days_shift:
