@@ -35,12 +35,12 @@ class Arbitrage:
 		data_stream.open_stream(input_file_path, input_feed_format)
 		data = data_stream.read_all(input_feed_format)
 		data_stream.close_stream()
-		print(data['<CLOSE>'])
+		# print(data['<CLOSE>'])
 		
 		dp = DataProccessing(self.errors)
 		
 		start = '12:00:00'
-		stop = '24:00:00'
+		stop = '00:00:00'
 		step = '00:05:00'
 		exclude = [
 			['20:45:00', '21:00:00']
