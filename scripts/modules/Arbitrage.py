@@ -48,6 +48,8 @@ class Arbitrage:
 		time_range = dp.generate_time_range(start, stop, step, exclude)
 		dp.join_time_range_with_data(time_range, data)
 		
+		print(time_range)
+		
 		# fig_name = '0000'
 		# plotter = Plotter(self.errors)
 		# plotter.plot_series(data, self.settings, fig_name)

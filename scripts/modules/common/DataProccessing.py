@@ -30,8 +30,7 @@ class DataProccessing:
 				time_range.append(curr_time.time())
 			curr_time += step_time
 			
-		print(time_range)
-		return ''
+		return time_range
 		
 	def join_time_range_with_data(self, time_range, data):
 		pass
