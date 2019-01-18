@@ -68,10 +68,11 @@ class DataStream:
 			line = self.file_handler.read_line()
 			if line:
 				line = line.rstrip('\n')
-				rec = self.tools.line_to_record(column_separator, line, columns)
-				self.type_record(rec, columns, column_data_types)
-				for col_cnt in range(len(rec)):
-					data[columns[col_cnt]].append(rec[columns[col_cnt]])
+				if line:
+					rec = self.tools.line_to_record(column_separator, line, columns)
+					self.type_record(rec, columns, column_data_types)
+					for col_cnt in range(len(rec)):
+						data[columns[col_cnt]].append(rec[columns[col_cnt]])
 			else:
 				break
 		return data
