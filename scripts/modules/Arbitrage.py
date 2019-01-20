@@ -35,7 +35,7 @@ class Arbitrage:
 		data_stream.open_stream(input_file_path, input_feed_format)
 		data = data_stream.read_all(input_feed_format)
 		data_stream.close_stream()
-		# print(data['<CLOSE>'])
+		# print(data)
 		
 		dp = DataProccessing(self.errors)
 		
@@ -43,12 +43,14 @@ class Arbitrage:
 		stop = '00:00:00'
 		step = '00:05:00'
 		exclude = [
-			['20:45:00', '21:00:00']
+			['18:50:00', '19:05:00']
 		]
 		time_range = dp.generate_time_range(start, stop, step, exclude)
-		dp.join_time_range_with_data(time_range, data)
+		date_range = dp.select_date_range(data['<DATE>'])
+		columns = ['<CLOSE>']
+		timed_data = dp.create_data_by_time_range(time_range, date_range, data, columns)
+		print(timed_data)
 		
-		print(time_range)
 		
 		# fig_name = '0000'
 		# plotter = Plotter(self.errors)

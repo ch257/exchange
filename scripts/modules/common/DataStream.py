@@ -28,6 +28,7 @@ class DataStream:
 				return float(value)
 			elif type == 'yyyymmdd':
 				return {
+					'yyyymmdd':value,
 					'yyyy': value[0:4],
 					'yy': value[2:4],
 					'mm': value[4:6],
@@ -35,6 +36,7 @@ class DataStream:
 				}
 			elif type == 'hhmmss':
 				return {
+					'hhmmss': value,
 					'hh': value[0:2],
 					'mm': value[2:4],
 					'ss': value[4:]
