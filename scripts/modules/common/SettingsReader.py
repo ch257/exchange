@@ -34,6 +34,9 @@ class SettingsReader:
 		self.ini_parser.read_ini(ini_file_path, encoding)
 		settings['input'] = {}
 		settings['input']['file_path'] = self.ini_parser.get_param('input', 'file_path')
+		settings['input']['si_file_path'] = self.ini_parser.get_param('input', 'si_file_path')
+		settings['input']['eu_file_path'] = self.ini_parser.get_param('input', 'eu_file_path')
+		settings['input']['eurusd_file_path'] = self.ini_parser.get_param('input', 'eurusd_file_path')
 		settings['input']['input_feed_format'] = self.ini_parser.get_param('input', 'input_feed_format')
 		
 		settings['output'] = {}
