@@ -52,6 +52,29 @@ class SettingsReader:
 		
 		#check several params
 		self.compare_elements_number(settings, input_feed_format, 'columns', input_feed_format, 'column_data_types')
+
+	def read_ConcatinateData(self, settings, ini_file_path, encoding):
+		if self.errors.error_occured:
+			return None
+		
+		self.ini_parser.read_ini(ini_file_path, encoding)
+		settings['input'] = {}
+		settings['input']['folder'] = self.ini_parser.get_param('input', 'folder')
+		settings['input']['input_feed_format'] = self.ini_parser.get_param('input', 'input_feed_format')
+		
+		settings['output'] = {}
+		settings['output']['folder'] = self.ini_parser.get_param('output', 'folder')
+		
+		input_feed_format = settings['input']['input_feed_format']
+		settings[input_feed_format] = {}
+		settings[input_feed_format]['encoding'] = self.ini_parser.get_param(input_feed_format, 'encoding')
+		settings[input_feed_format]['header_lines_number'] = self.ini_parser.get_param(input_feed_format, 'header_lines_number', 'int')
+		settings[input_feed_format]['columns'] = self.tools.explode(',', self.ini_parser.get_param(input_feed_format, 'columns'))
+		settings[input_feed_format]['column_separator'] = self.tools.escape_sequence(self.ini_parser.get_param(input_feed_format, 'column_separator'))
+		settings[input_feed_format]['column_data_types'] = self.tools.explode(',', self.ini_parser.get_param(input_feed_format, 'column_data_types'))
+		
+		#check several params
+		self.compare_elements_number(settings, input_feed_format, 'columns', input_feed_format, 'column_data_types')
 		
 	def read_PlotterSettings(self, settings, ini_file_path, encoding):
 		if self.errors.error_occured:

@@ -112,3 +112,7 @@ class DataProccessing:
 		return timed_data
 		# print(time_range)
 		# print(date_range)
+		
+	def append_data(self, data, app_data):
+		for key in data:
+			data[key].extend(app_data[key])
