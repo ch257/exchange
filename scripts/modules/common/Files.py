@@ -20,4 +20,7 @@ class Files:
 	
 	def read_line(self):
 		return self.handler.readline()
+	
+	def write_line(self, line):
+		self.handler.write(line + "\n")
 		

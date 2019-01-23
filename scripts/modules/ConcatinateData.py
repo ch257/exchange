@@ -22,7 +22,7 @@ class ConcatinateData:
 				
 			settings_reader = SettingsReader(self.errors)
 			ini_file_path = args[1]
-			settings_reader.read_ConcatinateData(self.settings, ini_file_path, encoding)
+			settings_reader.read_ConcatinateData_settings(self.settings, ini_file_path, encoding)
 	
 	def main(self, args):
 		self.read_settings(args)
@@ -44,8 +44,16 @@ class ConcatinateData:
 			data = data_stream.read_all(input_feed_format)
 			data_stream.close_stream()
 			dp.append_data(concatinated_data, data)
-
-		print(concatinated_data)
+		
+		output_folder = self.settings['output']['folder']
+		output_file = self.settings['output']['file']
+		output_file_path = output_folder + output_file
+		output_feed_format = self.settings[self.settings['output']['output_feed_format']]
+		fs.create_folder_branch(output_folder)
+		data_stream.open_stream(output_file_path, output_feed_format, mode='w')
+		data_stream.write_all(concatinated_data, output_feed_format)
+		data_stream.close_stream()
+		# print(concatinated_data)
 		
 		if self.errors.error_occured:
 			self.errors.print_errors()

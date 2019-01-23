@@ -10,13 +10,13 @@ class DataStream:
 		self.file_handler = None
 		self.tools = Tools(self.errors)
 	
-	def open_stream(self, file_path, feed_format):
+	def open_stream(self, file_path, feed_format, mode='r'):
 		if self.errors.error_occured:
 			return None
 		
 		encoding = feed_format['encoding']
 		self.file_handler = Files(self.errors)
-		self.file_handler.open_file(file_path, 'r', encoding)
+		self.file_handler.open_file(file_path, mode, encoding)
 		
 	def type_value(self, value, type):
 		if value:
@@ -78,7 +78,41 @@ class DataStream:
 			else:
 				break
 		return data
+		
 	
+	def to_str(self, value, type):
+		if value:
+			if type == 'num':
+				return str(value)
+			elif type == 'int':
+				return str(value)
+			elif type == 'float':
+				return str(value)
+			elif type == 'yyyymmdd':
+				return value['yyyy'] + value['mm'] + value['dd']
+			elif type == 'hhmmss':
+				return value['hh'] + value['mm'] + value['ss']
+		else:
+			value = None
+		return value
+		
+	def write_all(self, data, feed_format):
+		if self.errors.error_occured:
+			return None
+		columns = feed_format['columns']
+		column_separator = feed_format['column_separator']
+		column_data_types = feed_format['column_data_types']
+		
+		if len(columns) > 0:
+			for cnt in range(len(data[columns[0]])):
+				line = ''
+				col_cnt = 0
+				for col in columns:
+					line += column_separator + self.to_str(data[col][cnt], column_data_types[col_cnt])
+					col_cnt += 1
+				line = line[len(column_separator):]
+				self.file_handler.write_line(line)
+				
 	def close_stream(self):
 		if self.file_handler and not self.errors.error_occured:
 			self.file_handler.close_file()
