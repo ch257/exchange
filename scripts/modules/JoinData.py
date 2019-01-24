@@ -37,6 +37,7 @@ class JoinData:
 		input_folder = self.settings['input']['folder']
 		input_feed_format = self.settings[self.settings['input']['input_feed_format']]
 		input_columns = self.settings['input']['columns']
+		input_column_data_types  = self.settings['input']['column_data_types']
 		
 		output_folder = self.settings['output']['folder']
 		output_file = self.settings['output']['file']
@@ -46,14 +47,16 @@ class JoinData:
 		
 		folder_list = fs.get_folder_list(input_folder)
 		folder_list.sort()
-		cnt = 0
+		file_cnt = 0
 		files_number = len(folder_list)
-		while not self.errors.error_occured and cnt < files_number:
-			input_file_path = input_folder + folder_list[cnt]
+		joined_data = {}
+		timed_data = {}
+		while not self.errors.error_occured and file_cnt < files_number:
+			input_file_path = input_folder + folder_list[file_cnt]
 			data_stream.open_stream(input_file_path, input_feed_format)
 			data = data_stream.read_all(input_feed_format)
 			data_stream.close_stream()
-			if cnt == 0:
+			if file_cnt == 0:
 				start = '12:00:00'
 				stop = '00:00:00'
 				step = '00:05:00'
@@ -62,11 +65,35 @@ class JoinData:
 				]
 				time_range = dp.generate_time_range(start, stop, step, exclude)
 				date_range = dp.select_date_range(data['<DATE>'])
+				joined_data['<DATE>'] = []
+				joined_data['<TIME>'] = []
+			
+			for col in input_columns:
+				joined_data[col + '_' + str(file_cnt + 1)] = []
 				
-			timed_data = dp.create_data_by_time_range(time_range, date_range, data, input_columns)
-			print(timed_data);
-			cnt += 1
+			timed_data[file_cnt] = dp.create_data_by_time_range(time_range, date_range, data, input_columns)
+			file_cnt += 1
 		
+		rec_cnt = 0
+		for c_date in date_range:
+			for c_time in time_range:
+				rec = {}
+				for file_cnt in range(files_number):
+					for col in input_columns:
+						if timed_data[file_cnt][col][rec_cnt] != None:
+							rec[col + '_' + str(file_cnt + 1)] = timed_data[file_cnt][col][rec_cnt]
+						else:
+							rec = {}
+							break
+				
+				if len(rec) > 0:
+					joined_data['<DATE>'].append(c_date)
+					joined_data['<TIME>'].append(c_time)
+					for k in rec:
+						joined_data[k].append(rec[k])
+					
+				rec_cnt += 1
+			
 		
 		if self.errors.error_occured:
 			self.errors.print_errors()
