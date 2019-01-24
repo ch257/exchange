@@ -42,6 +42,7 @@ class JoinData:
 		output_file = self.settings['output']['file']
 		output_feed_format = self.settings[self.settings['output']['output_feed_format']]
 		
+		# print(input_columns);
 		
 		folder_list = fs.get_folder_list(input_folder)
 		folder_list.sort()
@@ -53,9 +54,17 @@ class JoinData:
 			data = data_stream.read_all(input_feed_format)
 			data_stream.close_stream()
 			if cnt == 0:
-				pass
-			
-			print(input_file_path);
+				start = '12:00:00'
+				stop = '00:00:00'
+				step = '00:05:00'
+				exclude = [
+					['18:50:00', '19:05:00']
+				]
+				time_range = dp.generate_time_range(start, stop, step, exclude)
+				date_range = dp.select_date_range(data['<DATE>'])
+				
+			timed_data = dp.create_data_by_time_range(time_range, date_range, data, input_columns)
+			print(timed_data);
 			cnt += 1
 		
 		
