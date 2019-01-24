@@ -62,6 +62,7 @@ class SettingsReader:
 		settings['input']['folder'] = self.ini_parser.get_param('input', 'folder')
 		settings['input']['input_feed_format'] = self.ini_parser.get_param('input', 'input_feed_format')
 		settings['input']['columns'] = self.tools.explode(',', self.ini_parser.get_param('input', 'columns'))
+		settings['input']['column_data_types'] = self.tools.explode(',', self.ini_parser.get_param('input', 'column_data_types'))
 		
 		settings['output'] = {}
 		settings['output']['folder'] = self.ini_parser.get_param('output', 'folder')
@@ -87,6 +88,8 @@ class SettingsReader:
 		#check several params
 		self.compare_elements_number(settings, input_feed_format, 'columns', input_feed_format, 'column_data_types')
 		self.compare_elements_number(settings, output_feed_format, 'columns', output_feed_format, 'column_data_types')
+		self.compare_elements_number(settings, 'input', 'columns', 'input', 'column_data_types')
+		
 	
 	def read_ConcatinateData_settings(self, settings, ini_file_path, encoding):
 		if self.errors.error_occured:

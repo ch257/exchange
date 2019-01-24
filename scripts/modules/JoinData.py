@@ -38,9 +38,25 @@ class JoinData:
 		input_feed_format = self.settings[self.settings['input']['input_feed_format']]
 		input_columns = self.settings['input']['columns']
 		
+		output_folder = self.settings['output']['folder']
+		output_file = self.settings['output']['file']
+		output_feed_format = self.settings[self.settings['output']['output_feed_format']]
+		
+		
 		folder_list = fs.get_folder_list(input_folder)
 		folder_list.sort()
-		print(folder_list)
+		cnt = 0
+		files_number = len(folder_list)
+		while not self.errors.error_occured and cnt < files_number:
+			input_file_path = input_folder + folder_list[cnt]
+			data_stream.open_stream(input_file_path, input_feed_format)
+			data = data_stream.read_all(input_feed_format)
+			data_stream.close_stream()
+			if cnt == 0:
+				pass
+			
+			print(input_file_path);
+			cnt += 1
 		
 		
 		if self.errors.error_occured:
