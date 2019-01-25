@@ -27,7 +27,7 @@ class Arbitrage:
 	
 	def main(self, args):
 		self.read_settings(args)
-		print(self.settings)
+		# print(self.settings)
 		
 		fs = FileSystem(self.errors)
 		data_stream = DataStream(self.errors)
@@ -46,6 +46,31 @@ class Arbitrage:
 		data = data_stream.read_all(input_feed_format)
 		data_stream.close_stream()
 		
+		output_feed_format['columns'].append('<EURUSD_R>')
+		output_feed_format['column_data_types'].append('num')
+		data['<EURUSD_R>'] = []
+		rec = {}
+		r = None
+		rc = None
+		for rec_cnt in range(len(data['<DATE>'])):
+			close_1 = data['<CLOSE_1>'][rec_cnt]
+			close_2 = data['<CLOSE_2>'][rec_cnt]
+			if rec_cnt > 0:
+				d_1 = close_1 - last_close_1
+				d_2 = close_2 - last_close_2
+				r = d_2 - d_1
+				if rc != None:
+					rc += last_r
+				else:
+					rc = r
+				
+			data['<EURUSD_R>'].append(rc)
+			
+			last_close_1 = close_1
+			last_close_2 = close_2
+			last_r = r
+			
+			
 		data_stream.open_stream(output_file_path, output_feed_format, mode='w')
 		data_stream.write_all(data, output_feed_format)
 		data_stream.close_stream()

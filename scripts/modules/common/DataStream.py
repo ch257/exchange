@@ -81,7 +81,7 @@ class DataStream:
 		
 	
 	def to_str(self, value, type):
-		if value:
+		if value != None:
 			if type == 'num':
 				return str(value)
 			elif type == 'int':
@@ -97,7 +97,7 @@ class DataStream:
 			elif type == 'hhmmss':
 				return value
 		else:
-			value = None
+			value = ''
 		return value
 		
 	def write_all(self, data, feed_format):
