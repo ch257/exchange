@@ -27,20 +27,19 @@ class SettingsReader:
 	def clone_value(self, value, number):
 		return number * [value]
 	
-	def read_DataStraemSettings(self, settings, ini_file_path, encoding):
+	def read_ArbitrageSettings(self, settings, ini_file_path, encoding):
 		if self.errors.error_occured:
 			return None
 		
 		self.ini_parser.read_ini(ini_file_path, encoding)
 		settings['input'] = {}
 		settings['input']['file_path'] = self.ini_parser.get_param('input', 'file_path')
-		settings['input']['si_file_path'] = self.ini_parser.get_param('input', 'si_file_path')
-		settings['input']['eu_file_path'] = self.ini_parser.get_param('input', 'eu_file_path')
-		settings['input']['eurusd_file_path'] = self.ini_parser.get_param('input', 'eurusd_file_path')
 		settings['input']['input_feed_format'] = self.ini_parser.get_param('input', 'input_feed_format')
-		
+
 		settings['output'] = {}
 		settings['output']['folder'] = self.ini_parser.get_param('output', 'folder')
+		settings['output']['file'] = self.ini_parser.get_param('output', 'file')
+		settings['output']['output_feed_format'] = self.ini_parser.get_param('output', 'output_feed_format')
 		
 		input_feed_format = settings['input']['input_feed_format']
 		settings[input_feed_format] = {}
@@ -50,9 +49,18 @@ class SettingsReader:
 		settings[input_feed_format]['column_separator'] = self.tools.escape_sequence(self.ini_parser.get_param(input_feed_format, 'column_separator'))
 		settings[input_feed_format]['column_data_types'] = self.tools.explode(',', self.ini_parser.get_param(input_feed_format, 'column_data_types'))
 		
+		output_feed_format = settings['output']['output_feed_format']
+		settings[output_feed_format] = {}
+		settings[output_feed_format]['encoding'] = self.ini_parser.get_param(output_feed_format, 'encoding')
+		settings[output_feed_format]['header_lines_number'] = self.ini_parser.get_param(output_feed_format, 'header_lines_number', 'int')
+		settings[output_feed_format]['columns'] = self.tools.explode(',', self.ini_parser.get_param(output_feed_format, 'columns'))
+		settings[output_feed_format]['column_separator'] = self.tools.escape_sequence(self.ini_parser.get_param(output_feed_format, 'column_separator'))
+		settings[output_feed_format]['column_data_types'] = self.tools.explode(',', self.ini_parser.get_param(output_feed_format, 'column_data_types'))
+		
 		#check several params
 		self.compare_elements_number(settings, input_feed_format, 'columns', input_feed_format, 'column_data_types')
-
+		self.compare_elements_number(settings, output_feed_format, 'columns', output_feed_format, 'column_data_types')
+		
 	def read_JoinData_settings(self, settings, ini_file_path, encoding):
 		if self.errors.error_occured:
 			return None

@@ -106,6 +106,14 @@ class DataStream:
 		columns = feed_format['columns']
 		column_separator = feed_format['column_separator']
 		column_data_types = feed_format['column_data_types']
+		header_lines_number = feed_format['header_lines_number']
+		
+		if header_lines_number > 0:
+			line = ''
+			for col in columns:
+				line += column_separator + col
+			line = line[len(column_separator):]
+			self.file_handler.write_line(line)
 		
 		if len(columns) > 0:
 			for cnt in range(len(data[columns[0]])):
