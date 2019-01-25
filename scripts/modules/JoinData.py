@@ -81,6 +81,10 @@ class JoinData:
 			timed_data[file_cnt] = dp.create_data_by_time_range(time_range, date_range, data, input_columns)
 			file_cnt += 1
 		
+		# print(len(timed_data[0]['<DATE>']))
+		# print(len(timed_data[1]['<DATE>']))
+		# print(len(timed_data[2]['<DATE>']))
+		
 		rec_cnt = 0
 		for c_date in date_range:
 			for c_time in time_range:
@@ -92,7 +96,9 @@ class JoinData:
 						else:
 							rec = {}
 							break
-				
+					if len(rec) == 0:
+						break
+						
 				if len(rec) > 0:
 					joined_data['<DATE>'].append(c_date)
 					joined_data['<TIME>'].append(c_time)
