@@ -88,10 +88,14 @@ class DataStream:
 				return str(value)
 			elif type == 'float':
 				return str(value)
-			elif type == 'yyyymmdd':
+			elif type == 'date':
 				return value['yyyy'] + value['mm'] + value['dd']
-			elif type == 'hhmmss':
+			elif type == 'time':
 				return value['hh'] + value['mm'] + value['ss']
+			elif type == 'yyyymmdd':
+				return value
+			elif type == 'hhmmss':
+				return value
 		else:
 			value = None
 		return value
