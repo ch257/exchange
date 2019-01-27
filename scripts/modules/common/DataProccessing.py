@@ -119,3 +119,16 @@ class DataProccessing:
 	def append_data(self, data, app_data):
 		for key in data:
 			data[key].extend(app_data[key])
+			
+	def add_column(self, col, col_type, col_length, data, feed_format):
+		feed_format['columns'].append(col)
+		feed_format['column_data_types'].append(col_type)
+		data[col] = []
+		for i in range(col_length):
+			data[col].append(None)
+			
+	def get_rec(self, rec_cnt, data, feed_format):
+		rec = {}
+		for col in feed_format['columns']:
+			rec[col] = data[col][rec_cnt]
+		return rec

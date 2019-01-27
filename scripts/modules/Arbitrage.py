@@ -4,7 +4,7 @@ from modules.common.Errors import *
 from modules.common.FileSystem import *
 from modules.common.SettingsReader import *
 from modules.common.DataStream import *
-# from modules.common.DataProccessing import *
+from modules.common.DataProccessing import *
 # from modules.common.Plotter import *
 
 class Arbitrage:
@@ -31,6 +31,7 @@ class Arbitrage:
 		
 		fs = FileSystem(self.errors)
 		data_stream = DataStream(self.errors)
+		dp = DataProccessing(self.errors)
 		
 		input_file_path = self.settings['input']['file_path']
 		input_feed_format = self.settings[self.settings['input']['input_feed_format']]
@@ -46,30 +47,49 @@ class Arbitrage:
 		data = data_stream.read_all(input_feed_format)
 		data_stream.close_stream()
 		
-		output_feed_format['columns'].append('<EURUSD_R>')
-		output_feed_format['column_data_types'].append('num')
-		data['<EURUSD_R>'] = []
-		rec = {}
-		r = None
-		rc = None
+		dp.add_column('<Si-Eu>', 'num', len(data['<DATE>']), data, output_feed_format)
+		dp.add_column('<Si-Eu_perc>', 'num', len(data['<DATE>']), data, output_feed_format)
+		dp.add_column('<ED_perc>', 'num', len(data['<DATE>']), data, output_feed_format)
+		dp.add_column('<EURUSD_perc>', 'num', len(data['<DATE>']), data, output_feed_format)
+		
 		for rec_cnt in range(len(data['<DATE>'])):
-			close_1 = data['<CLOSE_1>'][rec_cnt]
-			close_2 = data['<CLOSE_2>'][rec_cnt]
+			rec = dp.get_rec(rec_cnt, data, input_feed_format)
+			Eu_C = rec['<Eu_C>']
+			Si_C = rec['<Si_C>']
+			ED_C = rec['<ED_C>']
+			EURUSD_C = rec['<EURUSD_C>']
+			
 			if rec_cnt > 0:
-				d_1 = close_1 - last_close_1
-				d_2 = close_2 - last_close_2
-				r = d_2 - d_1
-				if rc != None:
-					rc += last_r
-				else:
-					rc = r
+				d_Si_cum += Si_C - last_Si_C
+				d_Eu_cum += Eu_C - last_Eu_C
+				d_Si_cum_perc += Si_C/last_Si_C - 1
+				d_Eu_cum_perc += Eu_C/last_Eu_C - 1
 				
-			data['<EURUSD_R>'].append(rc)
-			
-			last_close_1 = close_1
-			last_close_2 = close_2
-			last_r = r
-			
+				
+				Si_Eu = d_Si_cum - d_Eu_cum
+				Si_Eu_perc = d_Si_cum_perc - d_Eu_cum_perc
+				Si_Eu_perc = Si_Eu_perc * 100
+				
+				ED_cum_perc += (ED_C/last_ED_C - 1) * 100
+				EURUSD_cum_perc += (EURUSD_C/last_EURUSD_C - 1) * 100
+			else:
+				Si_Eu = None
+				Si_Eu_perc = 0
+				d_Si_cum = 0
+				d_Eu_cum = 0
+				d_Si_cum_perc = 0
+				d_Eu_cum_perc = 0
+				ED_cum_perc = 0
+				EURUSD_cum_perc = 0
+
+			last_Si_C = Si_C
+			last_Eu_C = Eu_C
+			last_ED_C = ED_C
+			last_EURUSD_C = EURUSD_C
+			data['<Si-Eu>'][rec_cnt] = Si_Eu
+			data['<Si-Eu_perc>'][rec_cnt] = Si_Eu_perc
+			data['<ED_perc>'][rec_cnt] = ED_cum_perc
+			data['<EURUSD_perc>'][rec_cnt] = EURUSD_cum_perc
 			
 		data_stream.open_stream(output_file_path, output_feed_format, mode='w')
 		data_stream.write_all(data, output_feed_format)
