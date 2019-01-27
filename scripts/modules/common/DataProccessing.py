@@ -39,11 +39,14 @@ class DataProccessing:
 		step_time = dt.strptime(step, '%H:%M:%S').time()
 		step_time = datetime.timedelta(hours=step_time.hour, minutes=step_time.minute, seconds=step_time.second)
 		
-		for excl in exclude:
+		for excl_cnt in range(len(exclude)):
+			excl = exclude[excl_cnt].split('-')
 			excl[0] = dt.strptime(excl[0], '%H:%M:%S')
 			excl[1] = dt.strptime(excl[1], '%H:%M:%S')
 			if excl[1] == dt.strptime('00:00:00', '%H:%M:%S'):
 				excl[1] += datetime.timedelta(days=1)
+			
+			exclude[excl_cnt] = [excl[0], excl[1]]
 
 		curr_time = start_time
 		while not self.errors.error_occured:

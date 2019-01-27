@@ -72,6 +72,12 @@ class SettingsReader:
 		settings['input']['columns'] = self.tools.explode(',', self.ini_parser.get_param('input', 'columns'))
 		settings['input']['column_data_types'] = self.tools.explode(',', self.ini_parser.get_param('input', 'column_data_types'))
 		
+		settings['input']['date_col'] = self.ini_parser.get_param('input', 'date_col')
+		settings['input']['start_time'] = self.ini_parser.get_param('input', 'start_time')
+		settings['input']['stop_time'] = self.ini_parser.get_param('input', 'stop_time')
+		settings['input']['step_time'] = self.ini_parser.get_param('input', 'step_time')
+		settings['input']['exclude_time'] = self.tools.explode(',', self.ini_parser.get_param('input', 'exclude_time'))
+		
 		settings['output'] = {}
 		settings['output']['folder'] = self.ini_parser.get_param('output', 'folder')
 		settings['output']['file'] = self.ini_parser.get_param('output', 'file')
@@ -89,13 +95,13 @@ class SettingsReader:
 		settings[output_feed_format] = {}
 		settings[output_feed_format]['encoding'] = self.ini_parser.get_param(output_feed_format, 'encoding')
 		settings[output_feed_format]['header_lines_number'] = self.ini_parser.get_param(output_feed_format, 'header_lines_number', 'int')
-		settings[output_feed_format]['columns'] = self.tools.explode(',', self.ini_parser.get_param(output_feed_format, 'columns'))
+		# settings[output_feed_format]['columns'] = self.tools.explode(',', self.ini_parser.get_param(output_feed_format, 'columns'))
 		settings[output_feed_format]['column_separator'] = self.tools.escape_sequence(self.ini_parser.get_param(output_feed_format, 'column_separator'))
-		settings[output_feed_format]['column_data_types'] = self.tools.explode(',', self.ini_parser.get_param(output_feed_format, 'column_data_types'))
+		# settings[output_feed_format]['column_data_types'] = self.tools.explode(',', self.ini_parser.get_param(output_feed_format, 'column_data_types'))
 		
 		#check several params
 		self.compare_elements_number(settings, input_feed_format, 'columns', input_feed_format, 'column_data_types')
-		self.compare_elements_number(settings, output_feed_format, 'columns', output_feed_format, 'column_data_types')
+		# self.compare_elements_number(settings, output_feed_format, 'columns', output_feed_format, 'column_data_types')
 		self.compare_elements_number(settings, 'input', 'columns', 'input', 'column_data_types')
 		
 	

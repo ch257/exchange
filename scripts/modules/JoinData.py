@@ -44,6 +44,12 @@ class JoinData:
 		output_file_path = output_folder + output_file
 		output_feed_format = self.settings[self.settings['output']['output_feed_format']]
 		
+		input_date_col = self.settings['input']['date_col']
+		start_time = self.settings['input']['start_time']
+		stop_time = self.settings['input']['stop_time']
+		step_time = self.settings['input']['step_time']
+		exclude_time = self.settings['input']['exclude_time']
+		
 		# print(input_columns);
 		
 		folder_list = fs.get_folder_list(input_folder)
@@ -55,19 +61,15 @@ class JoinData:
 		
 		joined_data['<DATE>'] = []
 		joined_data['<TIME>'] = []
+		output_feed_format['columns'] = ['<DATE>', '<TIME>']
+		output_feed_format['column_data_types'] = ['yyyymmdd', 'hhmmss']
 		for file_cnt in range(files_number):
 			for col_cnt in range(len(input_columns)):
 				joined_data[input_columns[col_cnt] + '_' + str(file_cnt + 1)] = []
 				output_feed_format['columns'].append(input_columns[col_cnt] + '_' + str(file_cnt + 1))
 				output_feed_format['column_data_types'].append(input_column_data_types[col_cnt])
 				
-		start = '12:00:00'
-		stop = '00:00:00'
-		step = '00:05:00'
-		exclude = [
-			['18:50:00', '19:05:00']
-		]
-		
+		date_range = []
 		file_cnt = 0
 		while not self.errors.error_occured and file_cnt < files_number:
 			input_file_path = input_folder + folder_list[file_cnt]
@@ -75,28 +77,26 @@ class JoinData:
 			data = data_stream.read_all(input_feed_format)
 			data_stream.close_stream()
 			if file_cnt == 0:
-				time_range = dp.generate_time_range(start, stop, step, exclude)
-				date_range = dp.select_date_range(data['<DATE>'])
+				time_range = dp.generate_time_range(start_time, stop_time, step_time, exclude_time)
+				date_range = dp.select_date_range(data[input_date_col])
 
 			timed_data[file_cnt] = dp.create_data_by_time_range(time_range, date_range, data, input_columns)
 			file_cnt += 1
-		
-		# print(len(timed_data[0]['<DATE>']))
-		# print(len(timed_data[1]['<DATE>']))
-		# print(len(timed_data[2]['<DATE>']))
 		
 		rec_cnt = 0
 		for c_date in date_range:
 			for c_time in time_range:
 				rec = {}
+				exitFlag = False
 				for file_cnt in range(files_number):
 					for col in input_columns:
 						if timed_data[file_cnt][col][rec_cnt] != None:
 							rec[col + '_' + str(file_cnt + 1)] = timed_data[file_cnt][col][rec_cnt]
 						else:
 							rec = {}
+							exitFlag = True
 							break
-					if len(rec) == 0:
+					if exitFlag:
 						break
 						
 				if len(rec) > 0:
