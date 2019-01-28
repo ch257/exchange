@@ -31,3 +31,6 @@
 12.12.2018 	66,4345 	66,3002
 11.12.2018 	66,4093 	66,4211
 10.12.2018 	66,4527 	66,4573
+
+
+https://www.moex.com/ru/derivatives/currency-rate.aspx?currency=USD_RUB
