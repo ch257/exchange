@@ -85,6 +85,9 @@ class JoinData:
 		
 		rec_cnt = 0
 		for c_date in date_range:
+			if self.errors.error_occured:
+				break
+			
 			for c_time in time_range:
 				rec = {}
 				exitFlag = False
