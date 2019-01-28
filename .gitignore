@@ -2,6 +2,7 @@
 _git.vbs
 scripts/modules/__pycache__/
 scripts/modules/common/__pycache__/
+scripts/modules/indicators/__pycache__/
 bin/
 data/output/
 data/history/
