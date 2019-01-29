@@ -85,7 +85,6 @@ class Arbitrage:
 								di_moex_timed_data.rec_cnt -= 1
 							break
 						else:
-							# data['<USDRUR>'].append(None)
 							continue
 							
 		# print(data['<USDRUR>'])
