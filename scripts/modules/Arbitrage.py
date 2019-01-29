@@ -5,6 +5,8 @@ from modules.common.FileSystem import *
 from modules.common.SettingsReader import *
 from modules.common.DataStream import *
 from modules.common.DataProccessing import *
+from modules.common.DataIterator import *
+from modules.common.Tools import *
 # from modules.common.Plotter import *
 
 class Arbitrage:
@@ -32,6 +34,7 @@ class Arbitrage:
 		fs = FileSystem(self.errors)
 		data_stream = DataStream(self.errors)
 		dp = DataProccessing(self.errors)
+		tools = Tools(self.errors)
 		
 		input_file_path = self.settings['input']['file_path']
 		input_feed_format = self.settings[self.settings['input']['input_feed_format']]
@@ -49,6 +52,21 @@ class Arbitrage:
 		data_stream.open_stream(input_file_path, input_feed_format)
 		data = data_stream.read_all(input_feed_format)
 		data_stream.close_stream()
+		
+		data_stream.open_stream(moex_currency_file, moex_currency_feed_format)
+		moex_currency_data = data_stream.read_all(moex_currency_feed_format)
+		data_stream.close_stream()
+		
+		time_range = dp.generate_time_range('12:00:00', '00:00:00', '00:05:00', tools.explode(',', '18:50:00-19:05:00'))
+		date_range = dp.select_date_range(moex_currency_data['<DATE>'])
+		moex_currency_timed_data = dp.create_data_by_time_range(time_range, date_range, moex_currency_data, ['<USDRUR>'])
+		# print(moex_currency_timed_data['<DATE>'])
+		
+		di_moex_timed_data = DataIterator(self.errors, moex_currency_timed_data, '<DATE>', moex_currency_feed_format)
+		while not di_moex_timed_data.EOD:
+			rec = di_moex_timed_data.get_next_rec()
+			print(rec['<USDRUR>'])
+			
 		
 		dp.add_column('<Si-Eu>', 'num', len(data['<DATE>']), data, output_feed_format)
 		dp.add_column('<Si-Eu_perc>', 'num', len(data['<DATE>']), data, output_feed_format)

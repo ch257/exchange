@@ -53,11 +53,11 @@ class SettingsReader:
 		
 		moex_currency_feed_format = settings['input']['moex_currency_feed_format']
 		settings[moex_currency_feed_format] = {}
-		settings[moex_currency_feed_format]['encoding'] = self.ini_parser.get_param(input_feed_format, 'encoding')
-		settings[moex_currency_feed_format]['header_lines_number'] = self.ini_parser.get_param(input_feed_format, 'header_lines_number', 'int')
-		settings[moex_currency_feed_format]['columns'] = self.tools.explode(',', self.ini_parser.get_param(input_feed_format, 'columns'))
-		settings[moex_currency_feed_format]['column_separator'] = self.tools.escape_sequence(self.ini_parser.get_param(input_feed_format, 'column_separator'))
-		settings[moex_currency_feed_format]['column_data_types'] = self.tools.explode(',', self.ini_parser.get_param(input_feed_format, 'column_data_types'))
+		settings[moex_currency_feed_format]['encoding'] = self.ini_parser.get_param(moex_currency_feed_format, 'encoding')
+		settings[moex_currency_feed_format]['header_lines_number'] = self.ini_parser.get_param(moex_currency_feed_format, 'header_lines_number', 'int')
+		settings[moex_currency_feed_format]['columns'] = self.tools.explode(',', self.ini_parser.get_param(moex_currency_feed_format, 'columns'))
+		settings[moex_currency_feed_format]['column_separator'] = self.tools.escape_sequence(self.ini_parser.get_param(moex_currency_feed_format, 'column_separator'))
+		settings[moex_currency_feed_format]['column_data_types'] = self.tools.explode(',', self.ini_parser.get_param(moex_currency_feed_format, 'column_data_types'))
 		
 		output_feed_format = settings['output']['output_feed_format']
 		settings[output_feed_format] = {}
