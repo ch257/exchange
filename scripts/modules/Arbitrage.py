@@ -62,12 +62,17 @@ class Arbitrage:
 		moex_currency_timed_data = dp.create_data_by_time_range(time_range, date_range, moex_currency_data, ['<USDRUR>'])
 		# print(moex_currency_timed_data['<DATE>'])
 		
+		dp.add_column('<USDRUR>', 'num', len(data['<DATE>']), data, output_feed_format)
+		
 		di_moex_timed_data = DataIterator(self.errors, moex_currency_timed_data, '<DATE>', moex_currency_feed_format)
-		di_data = DataIterator(self.errors, data, '<DATE>', input_feed_format)
+		di_data = DataIterator(self.errors, data, '<DATE>', output_feed_format)
+		last_USDRUR = None
 		while not di_data.EOD:
 			d_rec = di_data.get_next_rec()
 			while not di_moex_timed_data.EOD:
 				mtd_rec = di_moex_timed_data.get_next_rec()
+				if mtd_rec['<USDRUR>'] != None:
+					last_USDRUR = mtd_rec['<USDRUR>']
 				if d_rec['<DATE>']['yyyymmdd'] > mtd_rec['<DATE>']:
 					continue
 				else:
@@ -75,12 +80,22 @@ class Arbitrage:
 						continue
 					else:
 						if d_rec['<DATE>']['yyyymmdd'] == mtd_rec['<DATE>']:
-							print(d_rec['<DATE>']['yyyymmdd'] + ' ' +  d_rec['<TIME>']['hhmmss'] + '\t' + mtd_rec['<DATE>'] + ' ' +  mtd_rec['<TIME>'])
+							data['<USDRUR>'][di_data.rec_cnt - 1] = last_USDRUR #mtd_rec['<USDRUR>']
 							if d_rec['<TIME>']['hhmmss'] > mtd_rec['<TIME>']:
 								di_moex_timed_data.rec_cnt -= 1
 							break
 						else:
+							# data['<USDRUR>'].append(None)
 							continue
+							
+		# print(data['<USDRUR>'])
+		# print(len(data['<USDRUR>']))
+		# print(len(data['<DATE>']))
+		
+		di_data = DataIterator(self.errors, data, '<DATE>', output_feed_format)
+		while not di_data.EOD:
+			d_rec = di_data.get_next_rec()
+			print(d_rec['<DATE>']['yyyymmdd'] + ' ' + d_rec['<TIME>']['hhmmss'] + ' ' + str(d_rec['<USDRUR>']))
 			
 		
 		dp.add_column('<Si-Eu>', 'num', len(data['<DATE>']), data, output_feed_format)
