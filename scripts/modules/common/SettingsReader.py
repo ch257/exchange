@@ -35,6 +35,8 @@ class SettingsReader:
 		settings['input'] = {}
 		settings['input']['file_path'] = self.ini_parser.get_param('input', 'file_path')
 		settings['input']['input_feed_format'] = self.ini_parser.get_param('input', 'input_feed_format')
+		settings['input']['moex_currency_file'] = self.ini_parser.get_param('input', 'moex_currency_file')
+		settings['input']['moex_currency_feed_format'] = self.ini_parser.get_param('input', 'moex_currency_feed_format')
 
 		settings['output'] = {}
 		settings['output']['folder'] = self.ini_parser.get_param('output', 'folder')
@@ -49,6 +51,14 @@ class SettingsReader:
 		settings[input_feed_format]['column_separator'] = self.tools.escape_sequence(self.ini_parser.get_param(input_feed_format, 'column_separator'))
 		settings[input_feed_format]['column_data_types'] = self.tools.explode(',', self.ini_parser.get_param(input_feed_format, 'column_data_types'))
 		
+		moex_currency_feed_format = settings['input']['moex_currency_feed_format']
+		settings[moex_currency_feed_format] = {}
+		settings[moex_currency_feed_format]['encoding'] = self.ini_parser.get_param(input_feed_format, 'encoding')
+		settings[moex_currency_feed_format]['header_lines_number'] = self.ini_parser.get_param(input_feed_format, 'header_lines_number', 'int')
+		settings[moex_currency_feed_format]['columns'] = self.tools.explode(',', self.ini_parser.get_param(input_feed_format, 'columns'))
+		settings[moex_currency_feed_format]['column_separator'] = self.tools.escape_sequence(self.ini_parser.get_param(input_feed_format, 'column_separator'))
+		settings[moex_currency_feed_format]['column_data_types'] = self.tools.explode(',', self.ini_parser.get_param(input_feed_format, 'column_data_types'))
+		
 		output_feed_format = settings['output']['output_feed_format']
 		settings[output_feed_format] = {}
 		settings[output_feed_format]['encoding'] = self.ini_parser.get_param(output_feed_format, 'encoding')
@@ -59,6 +69,7 @@ class SettingsReader:
 		
 		#check several params
 		self.compare_elements_number(settings, input_feed_format, 'columns', input_feed_format, 'column_data_types')
+		self.compare_elements_number(settings, moex_currency_feed_format, 'columns', moex_currency_feed_format, 'column_data_types')
 		self.compare_elements_number(settings, output_feed_format, 'columns', output_feed_format, 'column_data_types')
 		
 	def read_JoinData_settings(self, settings, ini_file_path, encoding):

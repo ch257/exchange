@@ -36,6 +36,9 @@ class Arbitrage:
 		input_file_path = self.settings['input']['file_path']
 		input_feed_format = self.settings[self.settings['input']['input_feed_format']]
 		
+		moex_currency_file = self.settings['input']['moex_currency_file']
+		moex_currency_feed_format = self.settings[self.settings['input']['moex_currency_feed_format']]
+		
 		output_folder = self.settings['output']['folder']
 		output_file = self.settings['output']['file']
 		output_file_path = output_folder + output_file
