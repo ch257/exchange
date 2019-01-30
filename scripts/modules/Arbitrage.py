@@ -91,55 +91,43 @@ class Arbitrage:
 		# print(len(data['<USDRUR>']))
 		# print(len(data['<DATE>']))
 		
-		di_data = DataIterator(self.errors, data, '<DATE>', output_feed_format)
-		while not di_data.EOD:
-			d_rec = di_data.get_next_rec()
-			print(d_rec['<DATE>']['yyyymmdd'] + ' ' + d_rec['<TIME>']['hhmmss'] + ' ' + str(d_rec['<USDRUR>']))
+		# di_data = DataIterator(self.errors, data, '<DATE>', output_feed_format)
+		# while not di_data.EOD:
+			# d_rec = di_data.get_next_rec()
+			# print(d_rec['<DATE>']['yyyymmdd'] + ' ' + d_rec['<TIME>']['hhmmss'] + ' ' + str(d_rec['<USDRUR>']))
 			
 		
-		dp.add_column('<Si-Eu>', 'num', len(data['<DATE>']), data, output_feed_format)
-		dp.add_column('<Si-Eu_perc>', 'num', len(data['<DATE>']), data, output_feed_format)
-		dp.add_column('<ED_perc>', 'num', len(data['<DATE>']), data, output_feed_format)
-		dp.add_column('<EURUSD_perc>', 'num', len(data['<DATE>']), data, output_feed_format)
+		dp.add_column('<Eu_RUR>', 'num', len(data['<DATE>']), data, output_feed_format)
+		dp.add_column('<ED_RUR>', 'num', len(data['<DATE>']), data, output_feed_format)
+		dp.add_column('<ED_Eu_RUR>', 'num', len(data['<DATE>']), data, output_feed_format)
 		
 		for rec_cnt in range(len(data['<DATE>'])):
-			rec = dp.get_rec(rec_cnt, data, input_feed_format)
+			rec = dp.get_rec(rec_cnt, data, output_feed_format)
 			Eu_C = rec['<Eu_C>']
 			Si_C = rec['<Si_C>']
 			ED_C = rec['<ED_C>']
 			EURUSD_C = rec['<EURUSD_C>']
+			USDRUR = rec['<USDRUR>']
 			
 			if rec_cnt > 0:
-				d_Si_cum += Si_C - last_Si_C
-				d_Eu_cum += Eu_C - last_Eu_C
-				d_Si_cum_perc += Si_C/last_Si_C - 1
-				d_Eu_cum_perc += Eu_C/last_Eu_C - 1
+				Eu_RUR += Eu_C - last_Eu_C
+				ED_RUR += (ED_C - last_ED_C) * USDRUR * 1000
+				ED_Eu_RUR = ED_RUR - Eu_RUR
+				# print(ED_RUR)
 				
-				
-				Si_Eu = d_Si_cum - d_Eu_cum
-				Si_Eu_perc = d_Si_cum_perc - d_Eu_cum_perc
-				Si_Eu_perc = Si_Eu_perc * 100
-				
-				ED_cum_perc += (ED_C/last_ED_C - 1) * 100
-				EURUSD_cum_perc += (EURUSD_C/last_EURUSD_C - 1) * 100
 			else:
-				Si_Eu = None
-				Si_Eu_perc = 0
-				d_Si_cum = 0
-				d_Eu_cum = 0
-				d_Si_cum_perc = 0
-				d_Eu_cum_perc = 0
-				ED_cum_perc = 0
-				EURUSD_cum_perc = 0
+				Eu_RUR = 0
+				ED_RUR = 0
+				ED_Eu_RUR = 0
 
 			last_Si_C = Si_C
 			last_Eu_C = Eu_C
 			last_ED_C = ED_C
 			last_EURUSD_C = EURUSD_C
-			data['<Si-Eu>'][rec_cnt] = Si_Eu
-			data['<Si-Eu_perc>'][rec_cnt] = Si_Eu_perc
-			data['<ED_perc>'][rec_cnt] = ED_cum_perc
-			data['<EURUSD_perc>'][rec_cnt] = EURUSD_cum_perc
+
+			data['<Eu_RUR>'][rec_cnt] = Eu_RUR
+			data['<ED_RUR>'][rec_cnt] = ED_RUR
+			data['<ED_Eu_RUR>'][rec_cnt] = ED_Eu_RUR
 			
 		data_stream.open_stream(output_file_path, output_feed_format, mode='w')
 		data_stream.write_all(data, output_feed_format)
