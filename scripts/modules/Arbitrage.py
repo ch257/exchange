@@ -106,7 +106,6 @@ class Arbitrage:
 			Eu_C = rec['<Eu_C>']
 			Si_C = rec['<Si_C>']
 			ED_C = rec['<ED_C>']
-			EURUSD_C = rec['<EURUSD_C>']
 			USDRUR = rec['<USDRUR>']
 			
 			if rec_cnt > 0:
@@ -123,8 +122,7 @@ class Arbitrage:
 			last_Si_C = Si_C
 			last_Eu_C = Eu_C
 			last_ED_C = ED_C
-			last_EURUSD_C = EURUSD_C
-
+			
 			data['<Eu_RUR>'][rec_cnt] = Eu_RUR
 			data['<ED_RUR>'][rec_cnt] = ED_RUR
 			data['<ED_Eu_RUR>'][rec_cnt] = ED_Eu_RUR
