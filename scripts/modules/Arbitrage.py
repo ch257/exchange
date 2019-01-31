@@ -7,13 +7,18 @@ from modules.common.DataStream import *
 from modules.common.DataProccessing import *
 from modules.common.DataIterator import *
 from modules.common.Tools import *
+
+from modules.indicators.SMA import *
 # from modules.common.Plotter import *
 
 class Arbitrage:
 	def __init__(self):
 		self.errors = Errors()
 		self.settings = {}
-	
+		
+		self.open_long = False
+		self.open_short = False
+		
 	def read_settings(self, args):
 		if len(args) < 2:
 			self.errors.raise_error('no ini file path')
@@ -26,6 +31,35 @@ class Arbitrage:
 			ini_file_path = args[1]
 			settings_reader.read_ArbitrageSettings(self.settings, ini_file_path, encoding)
 			# settings_reader.read_PlotterSettings(self.settings, ini_file_path, encoding)
+	
+	def traiding(self, gamma, gamma_avg, rec_cnt):
+		if gamma_avg != None:	
+			delta = gamma - gamma_avg
+			dev = 100
+			buy_signal = False
+			sell_signal = False
+			if delta < dev:
+				buy_signal = True
+			if delta > -dev:
+				sell_signal = True
+			################################	
+			if self.open_long:
+				if delta >= 0:
+					self.open_long = False
+					print('CloseBUY')
+			elif self.open_short:
+				if delta >= 0:
+					self.open_short = False
+					print('CloseSELL')
+					
+			elif not (self.open_long or self.open_short):
+				if sell_signal:
+					self.open_short = True
+					print('OpenSELL')
+				elif buy_signal:
+					self.open_long = True
+					print('OpenBUY')
+			
 	
 	def main(self, args):
 		self.read_settings(args)
@@ -97,35 +131,48 @@ class Arbitrage:
 			# print(d_rec['<DATE>']['yyyymmdd'] + ' ' + d_rec['<TIME>']['hhmmss'] + ' ' + str(d_rec['<USDRUR>']))
 			
 		
+		dp.add_column('<Si_RUR>', 'num', len(data['<DATE>']), data, output_feed_format)
 		dp.add_column('<Eu_RUR>', 'num', len(data['<DATE>']), data, output_feed_format)
 		dp.add_column('<ED_RUR>', 'num', len(data['<DATE>']), data, output_feed_format)
-		dp.add_column('<ED_Eu_RUR>', 'num', len(data['<DATE>']), data, output_feed_format)
+		dp.add_column('<gamma>', 'num', len(data['<DATE>']), data, output_feed_format)
+		dp.add_column('<gamma_avg>', 'num', len(data['<DATE>']), data, output_feed_format)
 		
+		avg_per = 21
+		sma = SMA(avg_per)
 		for rec_cnt in range(len(data['<DATE>'])):
 			rec = dp.get_rec(rec_cnt, data, output_feed_format)
-			Eu_C = rec['<Eu_C>']
 			Si_C = rec['<Si_C>']
+			Eu_C = rec['<Eu_C>']
 			ED_C = rec['<ED_C>']
 			USDRUR = rec['<USDRUR>']
 			
 			if rec_cnt > 0:
+				Si_RUR += Si_C - last_Si_C
 				Eu_RUR += Eu_C - last_Eu_C
 				ED_RUR += (ED_C - last_ED_C) * USDRUR * 1000
-				ED_Eu_RUR = ED_RUR - Eu_RUR
+				gamma = (Eu_RUR - Si_RUR - ED_RUR) * 7 - Si_RUR  
+				gamma_avg = sma.calc(gamma)
+				
+				self.traiding(gamma, gamma_avg, rec_cnt)
 				# print(ED_RUR)
 				
 			else:
+				Si_RUR = 0
 				Eu_RUR = 0
 				ED_RUR = 0
-				ED_Eu_RUR = 0
+				gamma = 0
+				gamma_avg = None
 
 			last_Si_C = Si_C
 			last_Eu_C = Eu_C
 			last_ED_C = ED_C
 			
+			data['<Si_RUR>'][rec_cnt] = Si_RUR
 			data['<Eu_RUR>'][rec_cnt] = Eu_RUR
 			data['<ED_RUR>'][rec_cnt] = ED_RUR
-			data['<ED_Eu_RUR>'][rec_cnt] = ED_Eu_RUR
+			data['<gamma>'][rec_cnt] = gamma
+			data['<gamma_avg>'][rec_cnt] = gamma_avg
+			
 			
 		data_stream.open_stream(output_file_path, output_feed_format, mode='w')
 		data_stream.write_all(data, output_feed_format)
