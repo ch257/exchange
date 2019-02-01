@@ -129,8 +129,9 @@ class Arbitrage:
 		
 		time_range = dp.generate_time_range('12:00:00', '00:00:00', '00:05:00', tools.explode(',', '18:50:00-19:05:00'))
 		date_range = dp.select_date_range(moex_currency_data['<DATE>'])
+		print(date_range);
 		moex_currency_timed_data = dp.create_data_by_time_range(time_range, date_range, moex_currency_data, ['<USDRUR>'])
-		# print(moex_currency_timed_data['<DATE>'])
+		print(moex_currency_timed_data['<USDRUR>'])
 		
 		dp.add_column('<USDRUR>', 'num', len(data['<DATE>']), data, output_feed_format)
 		
@@ -204,7 +205,7 @@ class Arbitrage:
 			if rec_cnt > 0:
 				Si_RUR += Si_C - last_Si_C
 				Eu_RUR += Eu_C - last_Eu_C
-				ED_RUR += (ED_C - last_ED_C) * USDRUR * 1000
+				ED_RUR += (ED_C - last_ED_C) * Si_C #USDRUR * 1000
 				gamma = (Eu_RUR - Si_RUR - ED_RUR) * N - Si_RUR  # N*Eu_RUR - (N+1)*Si_RUR - N*ED_RUR
 				gamma_avg = sma.calc(gamma)
 				

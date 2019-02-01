@@ -87,6 +87,7 @@ class DataProccessing:
 			for c_time in time_range:
 				timed_data['<DATE>'].append(c_date)
 				timed_data['<TIME>'].append(c_time)
+				print(c_date, c_time)
 				found = False
 				while cnt < data_length:
 					if data['<DATE>'][cnt]['yyyymmdd'] == c_date:
@@ -98,7 +99,8 @@ class DataProccessing:
 							cnt -= 1
 							break
 					elif data['<DATE>'][cnt]['yyyymmdd'] > c_date:
-						cnt -= 1
+						if cnt > 0: ##############
+							cnt -= 1
 						break
 					cnt += 1
 					
