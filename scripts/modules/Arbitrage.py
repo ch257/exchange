@@ -32,40 +32,42 @@ class Arbitrage:
 			settings_reader.read_ArbitrageSettings(self.settings, ini_file_path, encoding)
 			# settings_reader.read_PlotterSettings(self.settings, ini_file_path, encoding)
 	
-	def openLong(self, rec):
-		rec['<Si_open_long'] = 0
-		rec['<Eu_open_long'] = 0
-		rec['<ED_open_long'] = 0
-		rec['<Si_lots'] = 0
-		rec['<Eu_lots'] = 0
-		rec['<ED_lots'] = 0
+	
+	# N*Eu_RUR - (N+1)*Si_RUR - N*ED_RUR
+	def openLong(self, rec, N):
+		rec['<Si_open_long>'] = rec['<Si_C>']
+		rec['<Eu_open_long>'] = rec['<Eu_C>']
+		rec['<ED_open_long>'] = rec['<ED_C>']
+		rec['<Si_lots>'] = -(N+1)
+		rec['<Eu_lots>'] = N
+		rec['<ED_lots>'] = -N
 		
-	def closeLong(self, rec):
-		rec['<Si_close_long'] = 0
-		rec['<Eu_close_long'] = 0
-		rec['<ED_close_long'] = 0
-		rec['<Si_lots'] = 0
-		rec['<Eu_lots'] = 0
-		rec['<ED_lots'] = 0
+	def closeLong(self, rec, N):
+		rec['<Si_close_long>'] = rec['<Si_C>']
+		rec['<Eu_close_long>'] = rec['<Eu_C>']
+		rec['<ED_close_long>'] = rec['<ED_C>']
+		rec['<Si_lots>'] = (N+1)
+		rec['<Eu_lots>'] = -N
+		rec['<ED_lots>'] = N
 		
-	def openShort(self, rec):
-		rec['<Si_open_short'] = 0
-		rec['<Eu_open_short'] = 0
-		rec['<ED_open_short'] = 0
-		rec['<Si_lots'] = 0
-		rec['<Eu_lots'] = 0
-		rec['<ED_lots'] = 0
+	def openShort(self, rec, N):
+		rec['<Si_open_short>'] = rec['<Si_C>']
+		rec['<Eu_open_short>'] = rec['<Eu_C>']
+		rec['<ED_open_short>'] = rec['<ED_C>']
+		rec['<Si_lots>'] = (N+1)
+		rec['<Eu_lots>'] = -N
+		rec['<ED_lots>'] = N
 		
-	def closeShort(self, rec):
-		rec['<Si_close_short'] = 0
-		rec['<Eu_close_short'] = 0
-		rec['<ED_close_short'] = 0
-		rec['<Si_lots'] = 0
-		rec['<Eu_lots'] = 0
-		rec['<ED_lots'] = 0
+	def closeShort(self, rec, N):
+		rec['<Si_close_short>'] = rec['<Si_C>']
+		rec['<Eu_close_short>'] = rec['<Eu_C>']
+		rec['<ED_close_short>'] = rec['<ED_C>']
+		rec['<Si_lots>'] = -(N+1)
+		rec['<Eu_lots>'] = N
+		rec['<ED_lots>'] = -N
 		
 	
-	def traiding(self, gamma, gamma_avg, rec):
+	def traiding(self, gamma, gamma_avg, rec, N):
 		if gamma_avg != None:	
 			delta = gamma - gamma_avg
 			dev = 100
@@ -80,19 +82,19 @@ class Arbitrage:
 			if self.open_long:
 				if delta >= 0:
 					self.open_long = False
-					self.closeLong(rec)
+					self.closeLong(rec, N)
 			elif self.open_short:
 				if delta >= 0:
 					self.open_short = False
-					self.closeShort(rec)
+					self.closeShort(rec, N)
 					
 			elif not (self.open_long or self.open_short):
 				if sell_signal:
 					self.open_short = True
-					self.openShort(rec)
+					self.openShort(rec, N)
 				elif buy_signal:
 					self.open_long = True
-					self.openLong(rec)
+					self.openLong(rec, N)
 			
 	
 	def main(self, args):
@@ -206,7 +208,7 @@ class Arbitrage:
 				gamma = (Eu_RUR - Si_RUR - ED_RUR) * N - Si_RUR  # N*Eu_RUR - (N+1)*Si_RUR - N*ED_RUR
 				gamma_avg = sma.calc(gamma)
 				
-				self.traiding(gamma, gamma_avg, rec)
+				self.traiding(gamma, gamma_avg, rec, N)
 				# print(ED_RUR)
 				
 			else:
@@ -226,6 +228,23 @@ class Arbitrage:
 			data['<gamma>'][rec_cnt] = gamma
 			data['<gamma_avg>'][rec_cnt] = gamma_avg
 			
+			data['<Si_open_long>'][rec_cnt] = rec['<Si_open_long>']
+			data['<Si_open_short>'][rec_cnt] = rec['<Si_open_short>']
+			data['<Si_lots>'][rec_cnt] = rec['<Si_lots>']
+			data['<Si_close_long>'][rec_cnt] = rec['<Si_close_long>']
+			data['<Si_close_short>'][rec_cnt] = rec['<Si_close_short>']
+			
+			data['<Eu_open_long>'][rec_cnt] = rec['<Eu_open_long>']
+			data['<Eu_open_short>'][rec_cnt] = rec['<Eu_open_short>']
+			data['<Eu_lots>'][rec_cnt] = rec['<Eu_lots>']
+			data['<Eu_close_long>'][rec_cnt] = rec['<Eu_close_long>']
+			data['<Eu_close_short>'][rec_cnt] = rec['<Eu_close_short>']
+			
+			data['<ED_open_long>'][rec_cnt] = rec['<ED_open_long>']
+			data['<ED_open_short>'][rec_cnt] = rec['<ED_open_short>']
+			data['<ED_lots>'][rec_cnt] = rec['<ED_lots>']
+			data['<ED_close_long>'][rec_cnt] = rec['<ED_close_long>']
+			data['<ED_close_short>'][rec_cnt] = rec['<ED_close_short>']
 			
 		data_stream.open_stream(output_file_path, output_feed_format, mode='w')
 		data_stream.write_all(data, output_feed_format)
