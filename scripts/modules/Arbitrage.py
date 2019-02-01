@@ -32,7 +32,40 @@ class Arbitrage:
 			settings_reader.read_ArbitrageSettings(self.settings, ini_file_path, encoding)
 			# settings_reader.read_PlotterSettings(self.settings, ini_file_path, encoding)
 	
-	def traiding(self, gamma, gamma_avg, rec_cnt):
+	def openLong(self, rec):
+		rec['<Si_open_long'] = 0
+		rec['<Eu_open_long'] = 0
+		rec['<ED_open_long'] = 0
+		rec['<Si_lots'] = 0
+		rec['<Eu_lots'] = 0
+		rec['<ED_lots'] = 0
+		
+	def closeLong(self, rec):
+		rec['<Si_close_long'] = 0
+		rec['<Eu_close_long'] = 0
+		rec['<ED_close_long'] = 0
+		rec['<Si_lots'] = 0
+		rec['<Eu_lots'] = 0
+		rec['<ED_lots'] = 0
+		
+	def openShort(self, rec):
+		rec['<Si_open_short'] = 0
+		rec['<Eu_open_short'] = 0
+		rec['<ED_open_short'] = 0
+		rec['<Si_lots'] = 0
+		rec['<Eu_lots'] = 0
+		rec['<ED_lots'] = 0
+		
+	def closeShort(self, rec):
+		rec['<Si_close_short'] = 0
+		rec['<Eu_close_short'] = 0
+		rec['<ED_close_short'] = 0
+		rec['<Si_lots'] = 0
+		rec['<Eu_lots'] = 0
+		rec['<ED_lots'] = 0
+		
+	
+	def traiding(self, gamma, gamma_avg, rec):
 		if gamma_avg != None:	
 			delta = gamma - gamma_avg
 			dev = 100
@@ -42,23 +75,24 @@ class Arbitrage:
 				buy_signal = True
 			if delta > -dev:
 				sell_signal = True
+			
 			################################	
 			if self.open_long:
 				if delta >= 0:
 					self.open_long = False
-					print('CloseBUY')
+					self.closeLong(rec)
 			elif self.open_short:
 				if delta >= 0:
 					self.open_short = False
-					print('CloseSELL')
+					self.closeShort(rec)
 					
 			elif not (self.open_long or self.open_short):
 				if sell_signal:
 					self.open_short = True
-					print('OpenSELL')
+					self.openShort(rec)
 				elif buy_signal:
 					self.open_long = True
-					print('OpenBUY')
+					self.openLong(rec)
 			
 	
 	def main(self, args):
@@ -137,8 +171,27 @@ class Arbitrage:
 		dp.add_column('<gamma>', 'num', len(data['<DATE>']), data, output_feed_format)
 		dp.add_column('<gamma_avg>', 'num', len(data['<DATE>']), data, output_feed_format)
 		
+		dp.add_column('<Si_open_long>', 'num', len(data['<DATE>']), data, output_feed_format)
+		dp.add_column('<Si_open_short>', 'num', len(data['<DATE>']), data, output_feed_format)
+		dp.add_column('<Si_lots>', 'num', len(data['<DATE>']), data, output_feed_format)
+		dp.add_column('<Si_close_long>', 'num', len(data['<DATE>']), data, output_feed_format)
+		dp.add_column('<Si_close_short>', 'num', len(data['<DATE>']), data, output_feed_format)
+
+		dp.add_column('<Eu_open_long>', 'num', len(data['<DATE>']), data, output_feed_format)
+		dp.add_column('<Eu_open_short>', 'num', len(data['<DATE>']), data, output_feed_format)
+		dp.add_column('<Eu_lots>', 'num', len(data['<DATE>']), data, output_feed_format)
+		dp.add_column('<Eu_close_long>', 'num', len(data['<DATE>']), data, output_feed_format)
+		dp.add_column('<Eu_close_short>', 'num', len(data['<DATE>']), data, output_feed_format)
+
+		dp.add_column('<ED_open_long>', 'num', len(data['<DATE>']), data, output_feed_format)
+		dp.add_column('<ED_open_short>', 'num', len(data['<DATE>']), data, output_feed_format)
+		dp.add_column('<ED_lots>', 'num', len(data['<DATE>']), data, output_feed_format)
+		dp.add_column('<ED_close_long>', 'num', len(data['<DATE>']), data, output_feed_format)
+		dp.add_column('<ED_close_short>', 'num', len(data['<DATE>']), data, output_feed_format)
+		
 		avg_per = 21
 		sma = SMA(avg_per)
+		N = 7
 		for rec_cnt in range(len(data['<DATE>'])):
 			rec = dp.get_rec(rec_cnt, data, output_feed_format)
 			Si_C = rec['<Si_C>']
@@ -150,10 +203,10 @@ class Arbitrage:
 				Si_RUR += Si_C - last_Si_C
 				Eu_RUR += Eu_C - last_Eu_C
 				ED_RUR += (ED_C - last_ED_C) * USDRUR * 1000
-				gamma = (Eu_RUR - Si_RUR - ED_RUR) * 7 - Si_RUR  
+				gamma = (Eu_RUR - Si_RUR - ED_RUR) * N - Si_RUR  # N*Eu_RUR - (N+1)*Si_RUR - N*ED_RUR
 				gamma_avg = sma.calc(gamma)
 				
-				self.traiding(gamma, gamma_avg, rec_cnt)
+				self.traiding(gamma, gamma_avg, rec)
 				# print(ED_RUR)
 				
 			else:
