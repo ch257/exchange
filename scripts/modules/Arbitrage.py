@@ -37,7 +37,7 @@ class Arbitrage:
 	def openLong(self, rec, N):
 		rec['<Si_open_long>'] = rec['<Si_C>']
 		rec['<Eu_open_long>'] = rec['<Eu_C>']
-		rec['<ED_open_long>'] = rec['<ED_C>']
+		rec['<ED_open_long>'] = rec['<ED_C>'] * rec['<USDRUR>'] * 1000
 		rec['<Si_lots>'] = -(N+1)
 		rec['<Eu_lots>'] = N
 		rec['<ED_lots>'] = -N
@@ -45,7 +45,7 @@ class Arbitrage:
 	def closeLong(self, rec, N):
 		rec['<Si_close_long>'] = rec['<Si_C>']
 		rec['<Eu_close_long>'] = rec['<Eu_C>']
-		rec['<ED_close_long>'] = rec['<ED_C>']
+		rec['<ED_close_long>'] = rec['<ED_C>'] * rec['<USDRUR>'] * 1000
 		rec['<Si_lots>'] = (N+1)
 		rec['<Eu_lots>'] = -N
 		rec['<ED_lots>'] = N
@@ -53,7 +53,7 @@ class Arbitrage:
 	def openShort(self, rec, N):
 		rec['<Si_open_short>'] = rec['<Si_C>']
 		rec['<Eu_open_short>'] = rec['<Eu_C>']
-		rec['<ED_open_short>'] = rec['<ED_C>']
+		rec['<ED_open_short>'] = rec['<ED_C>'] * rec['<USDRUR>'] * 1000
 		rec['<Si_lots>'] = (N+1)
 		rec['<Eu_lots>'] = -N
 		rec['<ED_lots>'] = N
@@ -61,7 +61,7 @@ class Arbitrage:
 	def closeShort(self, rec, N):
 		rec['<Si_close_short>'] = rec['<Si_C>']
 		rec['<Eu_close_short>'] = rec['<Eu_C>']
-		rec['<ED_close_short>'] = rec['<ED_C>']
+		rec['<ED_close_short>'] = rec['<ED_C>'] * rec['<USDRUR>'] * 1000
 		rec['<Si_lots>'] = -(N+1)
 		rec['<Eu_lots>'] = N
 		rec['<ED_lots>'] = -N
@@ -73,10 +73,10 @@ class Arbitrage:
 			dev = 100
 			buy_signal = False
 			sell_signal = False
-			if delta < dev:
-				buy_signal = True
-			if delta > -dev:
+			if delta < -dev:
 				sell_signal = True
+			if delta > dev:
+				buy_signal = True
 			
 			################################	
 			if self.open_long:
