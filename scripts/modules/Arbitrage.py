@@ -84,7 +84,7 @@ class Arbitrage:
 					self.open_long = False
 					self.closeLong(rec, N)
 			elif self.open_short:
-				if delta >= 0:
+				if delta <= 0:
 					self.open_short = False
 					self.closeShort(rec, N)
 					
