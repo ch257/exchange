@@ -18,6 +18,13 @@ class Arbitrage:
 		
 		self.open_long = False
 		self.open_short = False
+		self.Eu_lots = 0
+		self.Si_lots = 0
+		self.ED_lots = 0
+		self.Eu_op = 0
+		self.Si_op = 0
+		self.ED_op = 0
+		self.deal_cnt = 0
 		
 	def read_settings(self, args):
 		if len(args) < 2:
@@ -38,33 +45,67 @@ class Arbitrage:
 		rec['<Si_open_long>'] = rec['<Si_C>']
 		rec['<Eu_open_long>'] = rec['<Eu_C>']
 		rec['<ED_open_long>'] = rec['<ED_C>'] * rec['<USDRUR>'] * 1000
-		rec['<Si_lots>'] = -(N+1)
-		rec['<Eu_lots>'] = N
-		rec['<ED_lots>'] = -N
+		rec['<Si_lots>'] = (N+1)
+		rec['<Eu_lots>'] = -N
+		rec['<ED_lots>'] = N
+		self.Si_lots = (N+1)
+		self.Eu_lots = -N
+		self.ED_lots = N
+		self.Si_op = rec['<Si_C>']
+		self.Eu_op = rec['<Eu_C>']
+		self.ED_op = rec['<ED_C>']
 		
 	def closeLong(self, rec, N):
 		rec['<Si_close_long>'] = rec['<Si_C>']
 		rec['<Eu_close_long>'] = rec['<Eu_C>']
 		rec['<ED_close_long>'] = rec['<ED_C>'] * rec['<USDRUR>'] * 1000
-		rec['<Si_lots>'] = (N+1)
-		rec['<Eu_lots>'] = -N
-		rec['<ED_lots>'] = N
+		rec['<Si_lots>'] = -(N+1)
+		rec['<Eu_lots>'] = N
+		rec['<ED_lots>'] = -N
+		rec['<Eu_eqv>'] = self.Eu_op * self.Eu_lots + rec['<Eu_C>'] * rec['<Eu_lots>']
+		rec['<Si_eqv>'] = self.Si_op * self.Si_lots + rec['<Si_C>'] * rec['<Si_lots>']
+		rec['<ED_eqv>'] = (self.ED_op * self.ED_lots + rec['<ED_C>'] * rec['<ED_lots>']) * 1000 * rec['<USDRUR>']
+		rec['<all_eqv>'] = rec['<Eu_eqv>'] + rec['<Si_eqv>'] + rec['<ED_eqv>']
+		# self.Si_lots += -(N+1)
+		# self.Eu_lots += N
+		# self.ED_lots += -N
+		# self.Si_op = rec['<Si_C>']
+		# self.Eu_op = rec['<Eu_C>']
+		# self.ED_op = rec['<ED_C>']
+		self.deal_cnt += 1
 		
 	def openShort(self, rec, N):
 		rec['<Si_open_short>'] = rec['<Si_C>']
 		rec['<Eu_open_short>'] = rec['<Eu_C>']
 		rec['<ED_open_short>'] = rec['<ED_C>'] * rec['<USDRUR>'] * 1000
-		rec['<Si_lots>'] = (N+1)
-		rec['<Eu_lots>'] = -N
-		rec['<ED_lots>'] = N
+		rec['<Si_lots>'] = -(N+1)
+		rec['<Eu_lots>'] = N
+		rec['<ED_lots>'] = -N
+		self.Si_lots = -(N+1)
+		self.Eu_lots = N
+		self.ED_lots = -N
+		self.Si_op = rec['<Si_C>']
+		self.Eu_op = rec['<Eu_C>']
+		self.ED_op = rec['<ED_C>']
 		
 	def closeShort(self, rec, N):
 		rec['<Si_close_short>'] = rec['<Si_C>']
 		rec['<Eu_close_short>'] = rec['<Eu_C>']
 		rec['<ED_close_short>'] = rec['<ED_C>'] * rec['<USDRUR>'] * 1000
-		rec['<Si_lots>'] = -(N+1)
-		rec['<Eu_lots>'] = N
-		rec['<ED_lots>'] = -N
+		rec['<Si_lots>'] = (N+1)
+		rec['<Eu_lots>'] = -N
+		rec['<ED_lots>'] = N
+		rec['<Eu_eqv>'] = self.Eu_op * self.Eu_lots + rec['<Eu_C>'] * rec['<Eu_lots>']
+		rec['<Si_eqv>'] = self.Si_op * self.Si_lots + rec['<Si_C>'] * rec['<Si_lots>']
+		rec['<ED_eqv>'] = (self.ED_op * self.ED_lots + rec['<ED_C>'] * rec['<ED_lots>']) * 1000 * rec['<USDRUR>']
+		rec['<all_eqv>'] = rec['<Eu_eqv>'] + rec['<Si_eqv>'] + rec['<ED_eqv>']
+		# self.Si_lots += (N+1)
+		# self.Eu_lots += -N
+		# self.ED_lots += N
+		# self.Si_op = rec['<Si_C>']
+		# self.Eu_op = rec['<Eu_C>']
+		# self.ED_op = rec['<ED_C>']
+		self.deal_cnt += 1
 		
 	
 	def traiding(self, gamma, gamma_avg, rec, N):
@@ -74,9 +115,9 @@ class Arbitrage:
 			buy_signal = False
 			sell_signal = False
 			if delta < -dev:
-				sell_signal = True
-			if delta > dev:
 				buy_signal = True
+			if delta > dev:
+				sell_signal = True
 			
 			################################	
 			if self.open_long:
@@ -129,9 +170,8 @@ class Arbitrage:
 		
 		time_range = dp.generate_time_range('12:00:00', '00:00:00', '00:05:00', tools.explode(',', '18:50:00-19:05:00'))
 		date_range = dp.select_date_range(moex_currency_data['<DATE>'])
-		print(date_range);
 		moex_currency_timed_data = dp.create_data_by_time_range(time_range, date_range, moex_currency_data, ['<USDRUR>'])
-		print(moex_currency_timed_data['<USDRUR>'])
+		# print(moex_currency_timed_data['<USDRUR>'])
 		
 		dp.add_column('<USDRUR>', 'num', len(data['<DATE>']), data, output_feed_format)
 		
@@ -192,6 +232,13 @@ class Arbitrage:
 		dp.add_column('<ED_close_long>', 'num', len(data['<DATE>']), data, output_feed_format)
 		dp.add_column('<ED_close_short>', 'num', len(data['<DATE>']), data, output_feed_format)
 		
+		dp.add_column('<Eu_eqv>', 'num', len(data['<DATE>']), data, output_feed_format)
+		dp.add_column('<Si_eqv>', 'num', len(data['<DATE>']), data, output_feed_format)
+		dp.add_column('<ED_eqv>', 'num', len(data['<DATE>']), data, output_feed_format)
+		
+		dp.add_column('<all_eqv>', 'num', len(data['<DATE>']), data, output_feed_format)
+		
+		
 		avg_per = 21
 		sma = SMA(avg_per)
 		N = 7
@@ -247,6 +294,12 @@ class Arbitrage:
 			data['<ED_close_long>'][rec_cnt] = rec['<ED_close_long>']
 			data['<ED_close_short>'][rec_cnt] = rec['<ED_close_short>']
 			
+			data['<Eu_eqv>'][rec_cnt] = rec['<Eu_eqv>']
+			data['<Si_eqv>'][rec_cnt] = rec['<Si_eqv>']
+			data['<ED_eqv>'][rec_cnt] = rec['<ED_eqv>']
+			
+			data['<all_eqv>'][rec_cnt] = rec['<all_eqv>']
+			
 		data_stream.open_stream(output_file_path, output_feed_format, mode='w')
 		data_stream.write_all(data, output_feed_format)
 		data_stream.close_stream()
@@ -255,7 +308,7 @@ class Arbitrage:
 		# plotter = Plotter(self.errors)
 		# plotter.plot_series(data, self.settings, fig_name)
 		
-		# print(data)
+		print(self.deal_cnt)
 		
 		if self.errors.error_occured:
 			self.errors.print_errors()
