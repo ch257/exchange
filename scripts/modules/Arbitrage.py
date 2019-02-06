@@ -131,12 +131,13 @@ class Arbitrage:
 					
 			elif not (self.open_long or self.open_short):
 				if sell_signal:
-					self.open_short = True
-					self.openShort(rec, N)
+					if rec['<TIME>']['hhmmss'] < '230000':
+						self.openShort(rec, N)
+						self.open_short = True
 				elif buy_signal:
-					self.open_long = True
-					self.openLong(rec, N)
-			
+					if rec['<TIME>']['hhmmss'] < '230000':
+						self.openLong(rec, N)
+						self.open_long = True
 	
 	def main(self, args):
 		self.read_settings(args)
