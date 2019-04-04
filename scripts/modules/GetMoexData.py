@@ -104,6 +104,8 @@ class GetMoexData:
 
 			content = self.extract_rates(content)
 			
+			folder_path, file_name = fs.split_file_path(file_path)
+			fs.create_folder_branch(folder_path)
 			try:
 				with open(file_path, "w") as text_file:
 					print(content, file=text_file)

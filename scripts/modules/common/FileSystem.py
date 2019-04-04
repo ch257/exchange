@@ -24,6 +24,20 @@ class FileSystem:
 						break
 		return None
 		
+	def split_file_path(self, path):
+		if self.errors.error_occured:
+			return None
+		
+		path = path.replace('\\', '/')
+		folders = path.split('/')
+		file_name = folders.pop(len(folders) - 1)
+		folder_path = ''
+		for folder in folders:
+			if folder:
+				folder_path += folder + '/'
+		
+		return folder_path, file_name
+		
 	def get_folder_list(self, folder):
 		lst = []
 		try:
