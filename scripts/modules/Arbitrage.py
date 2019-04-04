@@ -25,6 +25,7 @@ class Arbitrage:
 		self.Si_op = 0
 		self.ED_op = 0
 		self.deal_cnt = 0
+		self.open_time = ''
 		
 	def read_settings(self, args):
 		if len(args) < 2:
@@ -54,6 +55,7 @@ class Arbitrage:
 		self.Si_op = rec['<Si_C>']
 		self.Eu_op = rec['<Eu_C>']
 		self.ED_op = rec['<ED_C>']
+		self.open_time = rec['<TIME>']['hhmmss']
 		
 	def closeLong(self, rec, N):
 		rec['<Si_close_long>'] = rec['<Si_C>']
@@ -73,6 +75,7 @@ class Arbitrage:
 		# self.Eu_op = rec['<Eu_C>']
 		# self.ED_op = rec['<ED_C>']
 		self.deal_cnt += 1
+		rec['<open_time>'] = self.open_time
 		
 	def openShort(self, rec, N):
 		rec['<Si_open_short>'] = rec['<Si_C>']
@@ -87,6 +90,7 @@ class Arbitrage:
 		self.Si_op = rec['<Si_C>']
 		self.Eu_op = rec['<Eu_C>']
 		self.ED_op = rec['<ED_C>']
+		self.open_time = rec['<TIME>']['hhmmss']
 		
 	def closeShort(self, rec, N):
 		rec['<Si_close_short>'] = rec['<Si_C>']
@@ -106,7 +110,7 @@ class Arbitrage:
 		# self.Eu_op = rec['<Eu_C>']
 		# self.ED_op = rec['<ED_C>']
 		self.deal_cnt += 1
-		
+		rec['<open_time>'] = self.open_time
 	
 	def traiding(self, gamma, gamma_avg, rec, N):
 		if gamma_avg != None:	
@@ -129,13 +133,19 @@ class Arbitrage:
 					self.open_short = False
 					self.closeShort(rec, N)
 					
+			#143500 152500; 154500 165500; 193500 202500
 			elif not (self.open_long or self.open_short):
+				t = rec['<TIME>']['hhmmss']
 				if sell_signal:
-					if rec['<TIME>']['hhmmss'] < '230000':
+					if ('143500' <= t and t < '152500' or
+						'154500' <= t and t < '165500' or
+						'193500' <= t and t < '202500'):
 						self.openShort(rec, N)
 						self.open_short = True
 				elif buy_signal:
-					if rec['<TIME>']['hhmmss'] < '230000':
+					if ('143500' <= t and t < '152500' or
+						'154500' <= t and t < '165500' or
+						'193500' <= t and t < '202500'):
 						self.openLong(rec, N)
 						self.open_long = True
 	
@@ -236,6 +246,7 @@ class Arbitrage:
 		dp.add_column('<Eu_eqv>', 'num', len(data['<DATE>']), data, output_feed_format)
 		dp.add_column('<Si_eqv>', 'num', len(data['<DATE>']), data, output_feed_format)
 		dp.add_column('<ED_eqv>', 'num', len(data['<DATE>']), data, output_feed_format)
+		dp.add_column('<open_time>', 'str', len(data['<DATE>']), data, output_feed_format)
 		
 		dp.add_column('<all_eqv>', 'num', len(data['<DATE>']), data, output_feed_format)
 		
@@ -298,6 +309,7 @@ class Arbitrage:
 			data['<Eu_eqv>'][rec_cnt] = rec['<Eu_eqv>']
 			data['<Si_eqv>'][rec_cnt] = rec['<Si_eqv>']
 			data['<ED_eqv>'][rec_cnt] = rec['<ED_eqv>']
+			data['<open_time>'][rec_cnt] = rec['<open_time>']
 			
 			data['<all_eqv>'][rec_cnt] = rec['<all_eqv>']
 			
