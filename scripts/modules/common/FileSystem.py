@@ -23,10 +23,10 @@ class FileSystem:
 						self.errors.raise_error('Can\'t create folder' + folder_path)
 						break
 		return None
-		
+
 	def split_file_path(self, path):
 		if self.errors.error_occured:
-			return None
+			return None, None
 		
 		path = path.replace('\\', '/')
 		folders = path.split('/')

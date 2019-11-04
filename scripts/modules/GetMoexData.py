@@ -4,6 +4,7 @@ import time
 import datetime
 from datetime import datetime as dt, date #, time
 import urllib.request
+import urllib.parse
 
 from modules.common.Errors import *
 from modules.common.IniParser import *
@@ -46,12 +47,12 @@ class GetMoexData:
 		
 	def shape_moex_url(self, start_date, end_date):
 		url = 'https://www.moex.com/export/derivatives/currency-rate.aspx?'
-		url = (url + 'language=ru' +
+		url = (url + 'language=en' +
 			'&currency=USD/RUB' +
 			'&moment_start=' + start_date +
 			'&moment_end=' + end_date)
-
-		return url
+		# print(urllib.parse.quote(url))
+		return url #urllib.parse.quote(url)
 
 	def extract_rates(self, content):
 		saved_content = '<CURRENCY>,<DATE>,<TIME>,<RATE>\n'
@@ -89,6 +90,7 @@ class GetMoexData:
 		
 		file_path = self.settings['output']['file_path']
 		start_date = self.settings['period']['start_date']
+
 		
 		if not self.errors.error_occured:
 			start_date = dt.strftime(dt.strptime(start_date, '%d.%m.%Y'), '%Y-%m-%d')
@@ -100,11 +102,12 @@ class GetMoexData:
 				content = page.read()
 				content = content.decode('utf-8').replace('\r', '')
 			except Exception as e:
-				self.errors.raise_error('Can\'t open url ' + url)
+				self.errors.raise_error('Can\'t open url ' + url + '\n' + str(e))
+			
 
 			content = self.extract_rates(content)
-			
 			folder_path, file_name = fs.split_file_path(file_path)
+			
 			fs.create_folder_branch(folder_path)
 			try:
 				with open(file_path, "w") as text_file:
